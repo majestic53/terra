@@ -33,7 +33,7 @@ namespace terra {
 		};
 
 		#define ARGUMENT_MAX ARGUMENT_VERSION
-		#define ARGUMENT_MIN 2
+		#define ARGUMENT_MIN 1
 
 		static const std::string ARGUMENT_DESC[] = {
 			"Display help information", // ARGUMENT_HELP

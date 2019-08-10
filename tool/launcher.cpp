@@ -128,7 +128,7 @@ namespace terra {
 							} else if(!m_seed) {
 								std::stringstream stream;
 
-								stream << std::hex << *argument;
+								stream << std::dec << *argument;
 								stream >> m_configuration.seed;
 
 								m_seed = true;

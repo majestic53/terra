@@ -93,6 +93,7 @@ namespace terra {
 				__in const void *context
 				) override
 			{
+				uint32_t seed;
 				SDL_version version = {};
 
 				TRACE_ENTRY_FORMAT("Context=%p", context);
@@ -101,6 +102,8 @@ namespace terra {
 				if(!m_configuration) {
 					THROW_TERRA_EXCEPTION(TERRA_EXCEPTION_CONFIGURATION_INVALID);
 				}
+
+				std::srand(std::time(nullptr));
 
 				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Terra loaded", "%s", VERSION_STRING());
 
@@ -112,6 +115,11 @@ namespace terra {
 				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "SDL loaded", "%u.%u.%u", version.major, version.minor, version.patch);
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra initializing");
+
+				seed = m_configuration->seed;
+				if(!seed) {
+					seed = std::rand();
+				}
 
 				// TODO
 
