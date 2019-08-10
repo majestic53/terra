@@ -37,7 +37,7 @@ namespace terra {
 		{
 			std::stringstream result;
 
-			result << STRING_COLOR(level) << "[" << terra::type::trace::timestamp() << "] "
+			result << LEVEL_COLOR(level) << "[" << terra::type::trace::timestamp() << "] "
 				<< "{" << LEVEL_STRING(level) << "} " << prefix << message;
 
 			if(format) {
@@ -89,7 +89,7 @@ namespace terra {
 
 			result << line << ")";
 #endif // NDEBUG
-			result << STRING_COLOR(LEVEL_NONE);
+			result << LEVEL_COLOR(LEVEL_NONE);
 
 			switch(level) {
 				case LEVEL_ERROR:

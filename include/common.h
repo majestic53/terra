@@ -32,7 +32,38 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "./common/constant.h"
-#include "./common/macro.h"
+
+#ifndef __in
+#define __in
+#endif // __in
+
+#ifndef __in_opt
+#define __in_opt
+#endif // __in_opt
+
+#ifndef __inout
+#define __inout
+#endif // __inout
+
+#ifndef __inout_opt
+#define __inout_opt
+#endif // __inout_opt
+
+#ifndef __out
+#define __out
+#endif // __out
+
+#ifndef __out_opt
+#define __out_opt
+#endif // __out_opt
+
+#define MILLISECONDS_PER_SECOND 1000.f
+
+#include "./common/color.h"
+#include "./common/exception.h"
+#include "./common/level.h"
+#include "./common/string.h"
+#include "./common/trace.h"
+#include "./common/version.h"
 
 #endif // TERRA_COMMON_H_

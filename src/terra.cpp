@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../include/type/singleton.h"
+#include "../include/type/display.h"
 #include "../include/terra.h"
 #include "./terra_type.h"
 
@@ -75,7 +75,9 @@ namespace terra {
 			friend class terra::type::singleton<terra::runtime>;
 
 			runtime(void) :
-				m_configuration(nullptr)
+				m_configuration(nullptr),
+				m_display(terra::type::display::instance()),
+				m_seed(0)
 			{
 				TRACE_ENTRY();
 				TRACE_EXIT();
@@ -93,7 +95,6 @@ namespace terra {
 				__in const void *context
 				) override
 			{
-				uint32_t seed;
 				SDL_version version = {};
 
 				TRACE_ENTRY_FORMAT("Context=%p", context);
@@ -114,16 +115,20 @@ namespace terra {
 				SDL_GetVersion(&version);
 				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "SDL loaded", "%u.%u.%u", version.major, version.minor, version.patch);
 
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra initializing");
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initializing");
 
-				seed = m_configuration->seed;
-				if(!seed) {
-					seed = std::rand();
+				m_seed = m_configuration->seed;
+				if(!m_seed) {
+					m_seed = std::rand();
 				}
+
+				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Runtime seed", "%u(%08x)", m_seed, m_seed);
 
 				// TODO
 
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra initialized");
+				m_display.initialize(nullptr);
+
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initialized");
 
 				TRACE_EXIT();
 			}
@@ -132,16 +137,17 @@ namespace terra {
 			{
 				TRACE_ENTRY();
 
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra uninitializing");
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitializing");
+
+				m_display.uninitialize();
 
 				// TODO
 
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra uninitialized");
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitialized");
 
 				SDL_Quit();
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "SDL unloaded");
-
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra unloaded");
 
 				TRACE_EXIT();
@@ -150,10 +156,14 @@ namespace terra {
 			void loop(void)
 			{
 				uint32_t begin = 0, current = 0;
+				float frame_frequency, frame_rate;
 
 				TRACE_ENTRY();
 
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra running");
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime running");
+
+				frame_frequency = m_display.frame_frequency();
+				frame_rate = m_display.frame_rate();
 
 				for(;;) {
 					float frequency, rate;
@@ -161,33 +171,35 @@ namespace terra {
 
 					rate = (end - begin);
 					if(rate >= MILLISECONDS_PER_SECOND) {
-						rate = (current - ((rate - MILLISECONDS_PER_SECOND) / FRAME_RATE));
+						rate = (current - ((rate - MILLISECONDS_PER_SECOND) / frame_rate));
 
-						TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Terra framerate", "%.1f", (rate > 0.f) ? rate : 0.f);
+						TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Runtime framerate", "%.1f", (rate > 0.f) ? rate : 0.f);
 
-//#ifndef NDEBUG
-						//m_display().set_frame_rate((rate > 0.f) ? rate : 0.f);
-//#endif // NDEBUG
+#ifndef NDEBUG
+						m_display.set_frame_rate((rate > 0.f) ? rate : 0.f);
+#endif // NDEBUG
 						begin = end;
 						current = 0;
 					}
 
 					if(!poll()) {
-						TRACE_MESSAGE(LEVEL_INFORMATION, "Terra interrupted");
+						TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime interrupted");
 						break;
 					}
 
 					// TODO
 
+					m_display.show();
+
 					frequency = (SDL_GetTicks() - end);
-					if(frequency < FRAME_FREQUENCY) {
-						SDL_Delay(FRAME_FREQUENCY - frequency);
+					if(frequency < frame_frequency) {
+						SDL_Delay(frame_frequency - frequency);
 					}
 
 					++current;
 				}
 
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra stopped");
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime stopped");
 
 				TRACE_EXIT();
 			}
@@ -220,7 +232,11 @@ namespace terra {
 
 			const terra_t *m_configuration;
 
+			terra::type::display &m_display;
+
 			std::string m_error;
+
+			uint32_t m_seed;
 	};
 }
 
