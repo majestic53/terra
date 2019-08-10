@@ -16,40 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TERRA_TYPE_DISPLAY_H_
-#define TERRA_TYPE_DISPLAY_H_
+#ifndef TERRA_TYPE_GENERATOR_H_
+#define TERRA_TYPE_GENERATOR_H_
 
 #include "../interface/runtime.h"
+#include "./perlin.h"
 #include "./singleton.h"
 
 namespace terra {
 
 	namespace type {
 
-		class display :
-				public terra::type::singleton<terra::type::display> {
+		class generator :
+				public terra::type::singleton<terra::type::generator> {
 
 			public:
 
-				~display(void);
-
-				float frame_frequency(void) const;
-
-				float frame_rate(void) const;
-
-				void set_pixel(
-					__in const color_t &color,
-					__in size_t x,
-					__in size_t y
-					);
-
-				void set_frame_rate(
-					__in float frame_rate
-					);
-
-				void set_title(
-					__in const std::string &title
-					);
+				~generator(void);
 
 				void update(
 					__in terra::interface::runtime &runtime
@@ -57,16 +40,16 @@ namespace terra {
 
 			protected:
 
-				friend class terra::type::singleton<terra::type::display>;
+				friend class terra::type::singleton<terra::type::generator>;
 
-				display(void);
+				generator(void);
 
-				display(
-					__in const display &other
+				generator(
+					__in const generator &other
 					) = delete;
 
-				display &operator=(
-					__in const display &other
+				generator &operator=(
+					__in const generator &other
 					) = delete;
 
 				void on_initialize(
@@ -75,21 +58,9 @@ namespace terra {
 
 				void on_uninitialize(void) override;
 
-				float m_frame_frequency;
-
-				float m_frame_rate;
-
-				std::vector<color_t> m_pixel;
-
-				SDL_Renderer *m_renderer;
-
-				SDL_Texture *m_texture;
-
-				std::string m_title;
-
-				SDL_Window *m_window;
+				terra::type::perlin m_perlin;
 		};
 	}
 }
 
-#endif // TERRA_TYPE_DISPLAY_H_
+#endif // TERRA_TYPE_GENERATOR_H_

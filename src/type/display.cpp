@@ -40,17 +40,6 @@ namespace terra {
 			TRACE_EXIT();
 		}
 
-		void
-		display::clear(void)
-		{
-			TRACE_ENTRY();
-
-			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, COLOR_BACKGROUND);
-			show();
-
-			TRACE_EXIT();
-		}
-
 		float
 		display::frame_frequency(void) const
 		{
@@ -226,9 +215,11 @@ namespace terra {
 		}
 
 		void
-		display::show(void)
+		display::update(
+			__in terra::interface::runtime &runtime
+			)
 		{
-			TRACE_ENTRY();
+			TRACE_ENTRY_FORMAT("Runtime=%p", &runtime);
 
 			if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(color_t))) {
 				THROW_TERRA_TYPE_DISPLAY_EXCEPTION_FORMAT(TERRA_TYPE_DISPLAY_EXCEPTION_EXTERNAL,

@@ -16,20 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TERRA_COMMON_VERSION_H_
-#define TERRA_COMMON_VERSION_H_
+#ifndef TERRA_INTERFACE_RUNTIME_H_
+#define TERRA_INTERFACE_RUNTIME_H_
 
-#define TERRA "Terra"
-#define TERRA_NOTICE "Copyright (C) 2019 David Jolly"
+#include "../common.h"
 
-#define VERSION_MAJOR 0
-#define VERSION_MINOR 1
-#define VERSION_RELEASE "alpha"
-#define VERSION_REVISION 3
-#define VERSION_WEEK 1932
+namespace terra {
 
-#define VERSION_STRING() \
-	AS_STRING(VERSION_MAJOR) "." AS_STRING(VERSION_MINOR) "." AS_STRING(VERSION_WEEK) "." \
-		AS_STRING(VERSION_REVISION) "-" VERSION_RELEASE
+	namespace interface {
 
-#endif // TERRA_COMMON_VERSION_H_
+		class runtime {
+
+			public:
+
+				virtual void set_pixel(
+					__in const color_t &color,
+					__in size_t x,
+					__in size_t y
+					) = 0;
+		};
+	}
+}
+
+#endif // TERRA_INTERFACE_RUNTIME_H_

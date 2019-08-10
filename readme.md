@@ -73,6 +73,7 @@ Version 0.1.1932
 
 *Updated: 8/10/2019*
 
+* Added generator/perlin class
 * Added display class
 
 *Updated: 8/9/2019*

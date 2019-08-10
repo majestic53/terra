@@ -16,14 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../include/interface/runtime.h"
 #include "../include/type/display.h"
+#include "../include/type/generator.h"
 #include "../include/terra.h"
 #include "./terra_type.h"
 
 namespace terra {
 
 	class runtime :
-			public terra::type::singleton<terra::runtime> {
+			public terra::type::singleton<terra::runtime>,
+			public terra::interface::runtime {
 
 		public:
 
@@ -70,14 +73,27 @@ namespace terra {
 				return result;
 			}
 
+			void set_pixel(
+				__in const color_t &color,
+				__in size_t x,
+				__in size_t y
+				) override
+			{
+				TRACE_ENTRY_FORMAT("Color=%u(%08x), Position={%u,%u}", color.raw, color.raw, x, y);
+
+				m_display.set_pixel(color, x, y);
+
+				TRACE_EXIT();
+			}
+
 		protected:
 
 			friend class terra::type::singleton<terra::runtime>;
 
 			runtime(void) :
-				m_configuration(nullptr),
 				m_display(terra::type::display::instance()),
-				m_seed(0)
+				m_generator(terra::type::generator::instance()),
+				m_update(false)
 			{
 				TRACE_ENTRY();
 				TRACE_EXIT();
@@ -99,12 +115,9 @@ namespace terra {
 
 				TRACE_ENTRY_FORMAT("Context=%p", context);
 
-				m_configuration = (const terra_t *)context;
-				if(!m_configuration) {
-					THROW_TERRA_EXCEPTION(TERRA_EXCEPTION_CONFIGURATION_INVALID);
+				if(!context) {
+					THROW_TERRA_EXCEPTION(TERRA_EXCEPTION_CONTEXT_INVALID);
 				}
-
-				std::srand(std::time(nullptr));
 
 				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Terra loaded", "%s", VERSION_STRING());
 
@@ -117,16 +130,10 @@ namespace terra {
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initializing");
 
-				m_seed = m_configuration->seed;
-				if(!m_seed) {
-					m_seed = std::rand();
-				}
-
-				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Runtime seed", "%u(%08x)", m_seed, m_seed);
-
-				// TODO
-
+				m_generator.initialize(context);
 				m_display.initialize(nullptr);
+
+				m_update = true;
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initialized");
 
@@ -139,9 +146,10 @@ namespace terra {
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitializing");
 
-				m_display.uninitialize();
+				m_update = false;
 
-				// TODO
+				m_display.uninitialize();
+				m_generator.uninitialize();
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitialized");
 
@@ -187,9 +195,12 @@ namespace terra {
 						break;
 					}
 
-					// TODO
+					if(m_update) {
+						m_update = false;
+						m_generator.update(*this);
+					}
 
-					m_display.show();
+					m_display.update(*this);
 
 					frequency = (SDL_GetTicks() - end);
 					if(frequency < frame_frequency) {
@@ -230,13 +241,13 @@ namespace terra {
 				return result;
 			}
 
-			const terra_t *m_configuration;
-
 			terra::type::display &m_display;
 
 			std::string m_error;
 
-			uint32_t m_seed;
+			terra::type::generator &m_generator;
+
+			bool m_update;
 	};
 }
 

@@ -32,7 +32,8 @@ archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
 	ar rcs $(DIR_BIN_LIB)$(LIB) $(DIR_BUILD)base_terra.o \
-		$(DIR_BUILD)type_display.o $(DIR_BUILD)type_exception.o $(DIR_BUILD)type_trace.o
+		$(DIR_BUILD)type_display.o $(DIR_BUILD)type_exception.o $(DIR_BUILD)type_generator.o $(DIR_BUILD)type_perlin.o \
+			$(DIR_BUILD)type_trace.o
 	cp $(DIR_INC)terra.h $(DIR_BIN_INC)
 	@echo '--- DONE -----------------------------------'
 
@@ -47,13 +48,19 @@ base_terra.o: $(DIR_SRC)terra.cpp $(DIR_INC)terra.h
 
 ### TYPE ###
 
-build_type: type_display.o type_exception.o type_trace.o
+build_type: type_display.o type_exception.o type_generator.o type_perlin.o type_trace.o
 
 type_display.o: $(DIR_SRC_TYPE)display.cpp $(DIR_INC_TYPE)display.h
 	$(CXX) $(FLAGS) $(BUILD_FLAGS) $(TRACE_FLAGS) -c $(DIR_SRC_TYPE)display.cpp -o $(DIR_BUILD)type_display.o
 
 type_exception.o: $(DIR_SRC_TYPE)exception.cpp $(DIR_INC_TYPE)exception.h
 	$(CXX) $(FLAGS) $(BUILD_FLAGS) $(TRACE_FLAGS) -c $(DIR_SRC_TYPE)exception.cpp -o $(DIR_BUILD)type_exception.o
+
+type_generator.o: $(DIR_SRC_TYPE)generator.cpp $(DIR_INC_TYPE)generator.h
+	$(CXX) $(FLAGS) $(BUILD_FLAGS) $(TRACE_FLAGS) -c $(DIR_SRC_TYPE)generator.cpp -o $(DIR_BUILD)type_generator.o
+
+type_perlin.o: $(DIR_SRC_TYPE)perlin.cpp $(DIR_INC_TYPE)perlin.h
+	$(CXX) $(FLAGS) $(BUILD_FLAGS) $(TRACE_FLAGS) -c $(DIR_SRC_TYPE)perlin.cpp -o $(DIR_BUILD)type_perlin.o
 
 type_trace.o: $(DIR_SRC_TYPE)trace.cpp $(DIR_INC_TYPE)trace.h
 	$(CXX) $(FLAGS) $(BUILD_FLAGS) $(TRACE_FLAGS) -c $(DIR_SRC_TYPE)trace.cpp -o $(DIR_BUILD)type_trace.o

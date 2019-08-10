@@ -20,6 +20,7 @@
 #define TERRA_COMMON_H_
 
 #include <SDL2/SDL.h>
+#include <algorithm>
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
@@ -27,6 +28,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <numeric>
 #include <random>
 #include <stdexcept>
 #include <sstream>
