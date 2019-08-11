@@ -162,16 +162,16 @@ namespace terra {
 
 							switch(key->second.first) {
 								case KEY_RIGHT:
-									m_offset.first = (state ? 1 : 0);
+									m_offset.first = (state ? MOVE_SPEED : 0);
 									break;
 								case KEY_LEFT:
-									m_offset.first = (state ? -1 : 0);
+									m_offset.first = (state ? -MOVE_SPEED : 0);
 									break;
 								case KEY_UP:
-									m_offset.second = (state ? -1 : 0);
+									m_offset.second = (state ? -MOVE_SPEED : 0);
 									break;
 								case KEY_DOWN:
-									m_offset.second = (state ? 1 : 0);
+									m_offset.second = (state ? MOVE_SPEED : 0);
 									break;
 								default:
 									break;
@@ -277,9 +277,9 @@ namespace terra {
 				TRACE_ENTRY_FORMAT("Event=%p", &event);
 
 				if(event.y > 0) {
-					m_world.zoom(1);
+					m_world.zoom(ZOOM_SPEED);
 				} else if(event.y < 0) {
-					m_world.zoom(-1);
+					m_world.zoom(-ZOOM_SPEED);
 				}
 
 				TRACE_EXIT();

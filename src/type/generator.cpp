@@ -36,13 +36,12 @@ namespace terra {
 			TRACE_EXIT();
 		}
 
-		std::vector<double>
+		void
 		generator::generate(
 			__in terra::interface::world &world
 			)
 		{
 			std::mt19937 engine;
-			std::vector<double> result;
 			std::vector<std::pair<double, double>> offsets;
 			uint32_t height, octave, octaves, pixel_x, pixel_y, width;
 			double center_x, center_y, lacunarity, noise_height_max = DBL_MIN, noise_height_min = DBL_MAX, persistance, scale;
@@ -53,7 +52,8 @@ namespace terra {
 
 			width = configuration.width;
 			height = configuration.height;
-			result.resize(width * height);
+
+			terra::type::generator::resize(width * height);
 
 			center_x = (width / 2.0);
 			center_y = (height / 2.0);
@@ -113,7 +113,7 @@ namespace terra {
 						noise_height_min = noise_height;
 					}
 
-					result.at((pixel_y * width) + pixel_x) = noise_height;
+					terra::type::generator::at((pixel_y * width) + pixel_x) = noise_height;
 				}
 			}
 
@@ -122,12 +122,12 @@ namespace terra {
 				for(pixel_x = 0; pixel_x < width; ++pixel_x) {
 					size_t index = ((pixel_y * width) + pixel_x);
 
-					result.at(index) = ((result.at(index) - noise_height_min) * (1.0 / (noise_height_max - noise_height_min)));
+					terra::type::generator::at(index) = ((terra::type::generator::at(index) - noise_height_min)
+						* (1.0 / (noise_height_max - noise_height_min)));
 				}
 			}
 
-			TRACE_EXIT_FORMAT("Result[%u]=%p", result.size(), &result);
-			return result;
+			TRACE_EXIT();
 		}
 
 		void
@@ -146,6 +146,8 @@ namespace terra {
 			}
 
 			TRACE_MESSAGE(LEVEL_INFORMATION, "Generator initializing");
+
+			terra::type::generator::clear();
 
 			seed = configuration->seed;
 			if(!seed) {
@@ -167,6 +169,9 @@ namespace terra {
 			TRACE_ENTRY();
 
 			TRACE_MESSAGE(LEVEL_INFORMATION, "Generator uninitializing");
+
+			terra::type::generator::clear();
+
 			TRACE_MESSAGE(LEVEL_INFORMATION, "Generator uninitialized");
 
 			TRACE_EXIT();

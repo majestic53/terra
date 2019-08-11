@@ -28,13 +28,14 @@ namespace terra {
 	namespace type {
 
 		class generator :
-				public terra::type::singleton<terra::type::generator> {
+				public terra::type::singleton<terra::type::generator>,
+				public std::vector<double> {
 
 			public:
 
 				~generator(void);
 
-				std::vector<double> generate(
+				void generate(
 					__in terra::interface::world &world
 					);
 

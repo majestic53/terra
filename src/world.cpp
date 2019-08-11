@@ -101,6 +101,98 @@ namespace terra {
 	}
 
 	void
+	world::occlude(
+		__inout color_t &color,
+		__in double height,
+		__in int32_t x,
+		__in int32_t y
+		)
+	{
+		double average = 0, count = 0;
+		int32_t radius_x, radius_x_high, radius_x_low, radius_y, radius_y_high, radius_y_low;
+
+		TRACE_ENTRY_FORMAT("Color=%p, Height=%g, X=%i, Y=%i", &color, height, x, y);
+
+		if(x <= (OCCLUSION_RADIUS - 1)) {
+
+			if(y <= (OCCLUSION_RADIUS - 1)) {
+				radius_x_low = 0;
+				radius_x_high = OCCLUSION_RADIUS;
+				radius_y_low = 0;
+				radius_y_high = OCCLUSION_RADIUS;
+			} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
+				radius_x_low = 0;
+				radius_x_high = OCCLUSION_RADIUS;
+				radius_y_low = -OCCLUSION_RADIUS;
+				radius_y_high = 0;
+			} else {
+				radius_x_low = 0;
+				radius_x_high = OCCLUSION_RADIUS;
+				radius_y_low = -OCCLUSION_RADIUS;
+				radius_y_high = OCCLUSION_RADIUS;
+			}
+		} else if(x >= (m_configuration->width - OCCLUSION_RADIUS)) {
+
+			if(y <= (OCCLUSION_RADIUS - 1)) {
+				radius_x_low = -OCCLUSION_RADIUS;
+				radius_x_high = 0;
+				radius_y_low = 0;
+				radius_y_high = OCCLUSION_RADIUS;
+			} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
+				radius_x_low = -OCCLUSION_RADIUS;
+				radius_x_high = 0;
+				radius_y_low = -OCCLUSION_RADIUS;
+				radius_y_high = 0;
+			} else {
+				radius_x_low = -OCCLUSION_RADIUS;
+				radius_x_high = 0;
+				radius_y_low = -OCCLUSION_RADIUS;
+				radius_y_high = OCCLUSION_RADIUS;
+			}
+		} else if(y <= (OCCLUSION_RADIUS - 1)) {
+			radius_x_low = -OCCLUSION_RADIUS;
+			radius_x_high = OCCLUSION_RADIUS;
+			radius_y_low = 0;
+			radius_y_high = OCCLUSION_RADIUS;
+		} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
+			radius_x_low = -OCCLUSION_RADIUS;
+			radius_x_high = OCCLUSION_RADIUS;
+			radius_y_low = -OCCLUSION_RADIUS;
+			radius_y_high = 0;
+		} else {
+			radius_x_low = -OCCLUSION_RADIUS;
+			radius_x_high = OCCLUSION_RADIUS;
+			radius_y_low = -OCCLUSION_RADIUS;
+			radius_y_high = OCCLUSION_RADIUS;
+		}
+
+		for(radius_y = radius_y_low; radius_y < radius_y_high; ++radius_y) {
+
+			for(radius_x = radius_x_low; radius_x < radius_x_high; ++radius_x) {
+
+				if(!radius_x && !radius_y) {
+					continue;
+				}
+
+				average += m_generator.at(((y + radius_y) * m_configuration->width) + (x + radius_x));
+				++count;
+			}
+		}
+
+		average /= count;
+
+		if(height < average) {
+			height /= average;
+
+			color.red *= height;
+			color.green *= height;
+			color.blue *= height;
+		}
+
+		TRACE_EXIT();
+	}
+
+	void
 	world::on_initialize(
 		__in const void *context
 		)
@@ -121,7 +213,7 @@ namespace terra {
 		m_zoom = ZOOM_MIN;
 
 		m_generator.initialize(m_configuration);
-		m_height = m_generator.generate(*this);
+		m_generator.generate(*this);
 
 		m_display.initialize(m_configuration);
 
@@ -145,7 +237,6 @@ namespace terra {
 		m_update = false;
 		m_display.uninitialize();
 
-		m_height.clear();
 		m_generator.uninitialize();
 
 		m_zoom = ZOOM_MIN;
@@ -176,9 +267,8 @@ namespace terra {
 		for(pixel_y = m_range.second.first; pixel_y < m_range.second.second; ++pixel_y) {
 
 			for(pixel_x = m_range.first.first; pixel_x < m_range.first.second; ++pixel_x) {
-				double sample;
+				double height;
 				color_t color = {};
-				int type = COLOR_WATER_DEEP;
 				int32_t subpixel_x, subpixel_y = 0;
 
 				if((pixel_x < 0) || (pixel_x >= m_configuration->width)
@@ -186,20 +276,15 @@ namespace terra {
 					continue;
 				}
 
-				sample = m_height.at((pixel_y * m_configuration->width) + pixel_x);
-
-				for(; type <= COLOR_MAX; ++type) {
-
-					if((sample >= COLOR_RANGE(type - 1)) && (sample <= COLOR_RANGE(type))) {
-						break;
-					}
-				}
-
-				color = COLOR(type);
+				height = m_generator.at((pixel_y * m_configuration->width) + pixel_x);
 
 				for(; subpixel_y < m_zoom; ++subpixel_y) {
 
 					for(subpixel_x = 0; subpixel_x < m_zoom; ++subpixel_x) {
+						texture(color, height, subpixel_x, subpixel_y);
+#ifndef OCCLUSION_DISABLE
+						occlude(color, height, pixel_x, pixel_y);
+#endif // OCCLUSION_DISABLE
 						m_display.set_pixel(color, ((pixel_x - m_range.first.first) * m_zoom) + subpixel_x,
 							((pixel_y - m_range.second.first) * m_zoom) + subpixel_y);
 					}
@@ -219,6 +304,36 @@ namespace terra {
 		m_zoom = ZOOM_MIN;
 
 		m_update = true;
+
+		TRACE_EXIT();
+	}
+
+	void
+	world::texture(
+		__inout color_t &color,
+		__in double height,
+		__in int32_t x,
+		__in int32_t y
+		)
+	{
+		int type = COLOR_WATER_DEEP;
+
+		TRACE_ENTRY_FORMAT("Color=%p, Height=%g, X=%i, Y=%i", &color, height, x, y);
+
+		for(; type <= COLOR_MAX; ++type) {
+
+			if((height >= COLOR_RANGE(type - 1)) && (height <= COLOR_RANGE(type))) {
+				break;
+			}
+		}
+
+#ifndef TEXTURE_DISABLE
+
+		// TODO: INTERPOLATE TEXTURE[TYPE] AT SUBPIXEL
+
+#else
+		color = COLOR(type);
+#endif // TEXTURE_DISABLE
 
 		TRACE_EXIT();
 	}

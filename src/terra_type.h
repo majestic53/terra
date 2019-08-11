@@ -71,7 +71,11 @@ namespace terra {
 
 	#define KEY_RESET SDL_SCANCODE_SPACE
 
+	#define MOVE_SPEED 1
+
 	#define SDL_FLAGS (SDL_INIT_VIDEO)
+
+	#define ZOOM_SPEED 1
 }
 
 #endif // TERRA_TYPE_H_

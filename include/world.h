@@ -66,6 +66,13 @@ namespace terra {
 
 			const terra_t &configuration(void) override;
 
+			void occlude(
+				__inout color_t &color,
+				__in double height,
+				__in int32_t x,
+				__in int32_t y
+				);
+
 			void on_initialize(
 				__in const void *context
 				) override;
@@ -74,13 +81,18 @@ namespace terra {
 
 			void render(void);
 
+			void texture(
+				__inout color_t &color,
+				__in double height,
+				__in int32_t x,
+				__in int32_t y
+				);
+
 			const terra_t *m_configuration;
 
 			terra::type::display &m_display;
 
 			terra::type::generator &m_generator;
-
-			std::vector<double> m_height;
 
 			std::pair<int32_t, int32_t> m_position;
 
