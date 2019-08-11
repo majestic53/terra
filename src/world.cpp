@@ -113,80 +113,84 @@ namespace terra {
 
 		TRACE_ENTRY_FORMAT("Color=%p, Height=%g, X=%i, Y=%i", &color, height, x, y);
 
-		if(x <= (OCCLUSION_RADIUS - 1)) {
+		if(height >= OCCLUSION_LIMIT) {
 
-			if(y <= (OCCLUSION_RADIUS - 1)) {
-				radius_x_low = 0;
-				radius_x_high = OCCLUSION_RADIUS;
-				radius_y_low = 0;
-				radius_y_high = OCCLUSION_RADIUS;
-			} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
-				radius_x_low = 0;
-				radius_x_high = OCCLUSION_RADIUS;
-				radius_y_low = -OCCLUSION_RADIUS;
-				radius_y_high = 0;
-			} else {
-				radius_x_low = 0;
-				radius_x_high = OCCLUSION_RADIUS;
-				radius_y_low = -OCCLUSION_RADIUS;
-				radius_y_high = OCCLUSION_RADIUS;
-			}
-		} else if(x >= (m_configuration->width - OCCLUSION_RADIUS)) {
+			if(x <= (OCCLUSION_RADIUS - 1)) {
 
-			if(y <= (OCCLUSION_RADIUS - 1)) {
-				radius_x_low = -OCCLUSION_RADIUS;
-				radius_x_high = 0;
-				radius_y_low = 0;
-				radius_y_high = OCCLUSION_RADIUS;
-			} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
-				radius_x_low = -OCCLUSION_RADIUS;
-				radius_x_high = 0;
-				radius_y_low = -OCCLUSION_RADIUS;
-				radius_y_high = 0;
-			} else {
-				radius_x_low = -OCCLUSION_RADIUS;
-				radius_x_high = 0;
-				radius_y_low = -OCCLUSION_RADIUS;
-				radius_y_high = OCCLUSION_RADIUS;
-			}
-		} else if(y <= (OCCLUSION_RADIUS - 1)) {
-			radius_x_low = -OCCLUSION_RADIUS;
-			radius_x_high = OCCLUSION_RADIUS;
-			radius_y_low = 0;
-			radius_y_high = OCCLUSION_RADIUS;
-		} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
-			radius_x_low = -OCCLUSION_RADIUS;
-			radius_x_high = OCCLUSION_RADIUS;
-			radius_y_low = -OCCLUSION_RADIUS;
-			radius_y_high = 0;
-		} else {
-			radius_x_low = -OCCLUSION_RADIUS;
-			radius_x_high = OCCLUSION_RADIUS;
-			radius_y_low = -OCCLUSION_RADIUS;
-			radius_y_high = OCCLUSION_RADIUS;
-		}
-
-		for(radius_y = radius_y_low; radius_y < radius_y_high; ++radius_y) {
-
-			for(radius_x = radius_x_low; radius_x < radius_x_high; ++radius_x) {
-
-				if(!radius_x && !radius_y) {
-					continue;
+				if(y <= (OCCLUSION_RADIUS - 1)) {
+					radius_x_low = 0;
+					radius_x_high = OCCLUSION_RADIUS;
+					radius_y_low = 0;
+					radius_y_high = OCCLUSION_RADIUS;
+				} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
+					radius_x_low = 0;
+					radius_x_high = OCCLUSION_RADIUS;
+					radius_y_low = -OCCLUSION_RADIUS;
+					radius_y_high = 0;
+				} else {
+					radius_x_low = 0;
+					radius_x_high = OCCLUSION_RADIUS;
+					radius_y_low = -OCCLUSION_RADIUS;
+					radius_y_high = OCCLUSION_RADIUS;
 				}
+			} else if(x >= (m_configuration->width - OCCLUSION_RADIUS)) {
 
-				average += m_generator.at(((y + radius_y) * m_configuration->width) + (x + radius_x));
-				++count;
+				if(y <= (OCCLUSION_RADIUS - 1)) {
+					radius_x_low = -OCCLUSION_RADIUS;
+					radius_x_high = 0;
+					radius_y_low = 0;
+					radius_y_high = OCCLUSION_RADIUS;
+				} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
+					radius_x_low = -OCCLUSION_RADIUS;
+					radius_x_high = 0;
+					radius_y_low = -OCCLUSION_RADIUS;
+					radius_y_high = 0;
+				} else {
+					radius_x_low = -OCCLUSION_RADIUS;
+					radius_x_high = 0;
+					radius_y_low = -OCCLUSION_RADIUS;
+					radius_y_high = OCCLUSION_RADIUS;
+				}
+			} else if(y <= (OCCLUSION_RADIUS - 1)) {
+				radius_x_low = -OCCLUSION_RADIUS;
+				radius_x_high = OCCLUSION_RADIUS;
+				radius_y_low = 0;
+				radius_y_high = OCCLUSION_RADIUS;
+			} else if(y >= (m_configuration->height - OCCLUSION_RADIUS)) {
+				radius_x_low = -OCCLUSION_RADIUS;
+				radius_x_high = OCCLUSION_RADIUS;
+				radius_y_low = -OCCLUSION_RADIUS;
+				radius_y_high = 0;
+			} else {
+				radius_x_low = -OCCLUSION_RADIUS;
+				radius_x_high = OCCLUSION_RADIUS;
+				radius_y_low = -OCCLUSION_RADIUS;
+				radius_y_high = OCCLUSION_RADIUS;
 			}
-		}
 
-		average /= count;
+			for(radius_y = radius_y_low; radius_y < radius_y_high; ++radius_y) {
 
-		if(height < average) {
-			height /= average;
+				for(radius_x = radius_x_low; radius_x < radius_x_high; ++radius_x) {
 
-			color.red *= height;
-			color.green *= height;
-			color.blue *= height;
+					if(!radius_x && !radius_y) {
+						continue;
+					}
+
+					average += m_generator.at(((y + radius_y) * m_configuration->width) + (x + radius_x));
+					++count;
+				}
+			}
+
+			average /= count;
+
+			if(height < average) {
+				height /= average;
+				height *= OCCLUSION_SCALE;
+
+				color.red -= height;
+				color.green -= height;
+				color.blue -= height;
+			}
 		}
 
 		TRACE_EXIT();
@@ -251,11 +255,13 @@ namespace terra {
 	}
 
 	void
-	world::render(void)
+	world::render(
+		__in uint32_t magnification
+		)
 	{
 		int32_t pixel_x, pixel_y;
 
-		TRACE_ENTRY();
+		TRACE_ENTRY_FORMAT("Magnification=%u", magnification);
 
 		for(pixel_y = 0; pixel_y < m_configuration->height; ++pixel_y) {
 
@@ -278,15 +284,15 @@ namespace terra {
 
 				height = m_generator.at((pixel_y * m_configuration->width) + pixel_x);
 
-				for(; subpixel_y < m_zoom; ++subpixel_y) {
+				for(; subpixel_y < magnification; ++subpixel_y) {
 
-					for(subpixel_x = 0; subpixel_x < m_zoom; ++subpixel_x) {
+					for(subpixel_x = 0; subpixel_x < magnification; ++subpixel_x) {
 						texture(color, height, subpixel_x, subpixel_y);
 #ifndef OCCLUSION_DISABLE
 						occlude(color, height, pixel_x, pixel_y);
 #endif // OCCLUSION_DISABLE
-						m_display.set_pixel(color, ((pixel_x - m_range.first.first) * m_zoom) + subpixel_x,
-							((pixel_y - m_range.second.first) * m_zoom) + subpixel_y);
+						m_display.set_pixel(color, ((pixel_x - m_range.first.first) * magnification) + subpixel_x,
+							((pixel_y - m_range.second.first) * magnification) + subpixel_y);
 					}
 				}
 			}
@@ -344,17 +350,19 @@ namespace terra {
 		TRACE_ENTRY();
 
 		if(m_update) {
+			uint32_t magnification;
 			int32_t center_x, center_y;
 
 			m_update = false;
 
-			center_x = ((m_configuration->width / m_zoom) / 2);
-			center_y = ((m_configuration->height / m_zoom) / 2);
+			magnification = std::pow(2, m_zoom);
+			center_x = ((m_configuration->width / magnification) / 2);
+			center_y = ((m_configuration->height / magnification) / 2);
 
 			m_range = std::make_pair(std::make_pair(m_position.first - center_x, m_position.first + center_x),
 					std::make_pair(m_position.second - center_y, m_position.second + center_y));
 
-			render();
+			render(magnification);
 		}
 
 		m_display.show(*this);

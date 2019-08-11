@@ -79,7 +79,9 @@ namespace terra {
 
 			void on_uninitialize(void) override;
 
-			void render(void);
+			void render(
+				__in uint32_t magnification
+				);
 
 			void texture(
 				__inout color_t &color,
