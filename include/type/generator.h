@@ -34,6 +34,10 @@ namespace terra {
 
 				~generator(void);
 
+				void generate(
+					__in terra::interface::runtime &runtime
+					);
+
 				void update(
 					__in terra::interface::runtime &runtime
 					);

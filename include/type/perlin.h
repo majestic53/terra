@@ -37,10 +37,10 @@ namespace terra {
 
 				virtual ~perlin(void);
 
-				double noise(
+				double sample(
 					__in double x,
 					__in double y,
-					__in double z
+					__in_opt double z = 0
 					) const;
 
 				void set_seed(

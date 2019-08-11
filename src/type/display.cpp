@@ -28,6 +28,7 @@ namespace terra {
 			m_frame_rate(0.f),
 			m_renderer(nullptr),
 			m_texture(nullptr),
+			m_width(0),
 			m_window(nullptr)
 		{
 			TRACE_ENTRY();
@@ -61,17 +62,27 @@ namespace terra {
 			__in const void *context
 			)
 		{
+			uint32_t height;
 			SDL_DisplayMode mode = {};
+			const terra_t *configuration;
 
 			TRACE_ENTRY_FORMAT("Context=%p", context);
 
 			TRACE_MESSAGE(LEVEL_INFORMATION, "Display initializing");
 
-			m_pixel.resize(DISPLAY_WIDTH * DISPLAY_HEIGHT, COLOR_BACKGROUND);
+			configuration = (const terra_t *)context;
+			if(!configuration || !configuration->width || !configuration->height) {
+				THROW_TERRA_TYPE_DISPLAY_EXCEPTION(TERRA_TYPE_DISPLAY_EXCEPTION_CONTEXT_INVALID);
+			}
+
+			m_width = configuration->width;
+			height = configuration->height;
+
+			m_pixel.resize(m_width * height, COLOR_BACKGROUND);
 			m_title = TERRA " " VERSION_STRING();
 
 			m_window = SDL_CreateWindow(STRING(m_title), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-					DISPLAY_WIDTH * DISPLAY_SCALE, DISPLAY_HEIGHT * DISPLAY_SCALE, SDL_WINDOW_FLAGS);
+					m_width * DISPLAY_SCALE, height * DISPLAY_SCALE, SDL_WINDOW_FLAGS);
 
 			if(!m_window) {
 				THROW_TERRA_TYPE_DISPLAY_EXCEPTION_FORMAT(TERRA_TYPE_DISPLAY_EXCEPTION_EXTERNAL,
@@ -84,7 +95,7 @@ namespace terra {
 					"SDL_CreateRenderer failed! %s", SDL_GetError());
 			}
 
-			if(SDL_RenderSetLogicalSize(m_renderer, DISPLAY_WIDTH, DISPLAY_HEIGHT)) {
+			if(SDL_RenderSetLogicalSize(m_renderer, m_width, height)) {
 				THROW_TERRA_TYPE_DISPLAY_EXCEPTION_FORMAT(TERRA_TYPE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_RenderSetLogicalSize failed! %s", SDL_GetError());
 			}
@@ -100,9 +111,7 @@ namespace terra {
 					"SDL_SetHint failed! %s", SDL_GetError());
 			}
 
-			m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-					DISPLAY_WIDTH, DISPLAY_HEIGHT);
-
+			m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, m_width, height);
 			if(!m_texture) {
 				THROW_TERRA_TYPE_DISPLAY_EXCEPTION_FORMAT(TERRA_TYPE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_CreateTexture failed! %s", SDL_GetError());
@@ -123,7 +132,7 @@ namespace terra {
 
 			m_frame_frequency = (MILLISECONDS_PER_SECOND / m_frame_rate);
 
-			TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Display dimensions", "%ux%ux%u", DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_SCALE);
+			TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Display dimensions", "%ux%ux%u", m_width, height, DISPLAY_SCALE);
 			TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Display frequency", "%.1f Hz", m_frame_frequency);
 			TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Display rate", "%.1f ms", m_frame_rate);
 
@@ -175,7 +184,7 @@ namespace terra {
 
 			TRACE_ENTRY_FORMAT("Color=%u(%08x), Position={%u,%u}", color.raw, color.raw, x, y);
 
-			index = ((y * DISPLAY_WIDTH) + x);
+			index = ((y * m_width) + x);
 			if(index >= m_pixel.size()) {
 				THROW_TERRA_TYPE_DISPLAY_EXCEPTION_FORMAT(TERRA_TYPE_DISPLAY_EXCEPTION_PIXEL_INVALID,
 					"{%u, %u}", x, y);
@@ -221,7 +230,7 @@ namespace terra {
 		{
 			TRACE_ENTRY_FORMAT("Runtime=%p", &runtime);
 
-			if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], DISPLAY_WIDTH * sizeof(color_t))) {
+			if(SDL_UpdateTexture(m_texture, nullptr, &m_pixel[0], m_width * sizeof(color_t))) {
 				THROW_TERRA_TYPE_DISPLAY_EXCEPTION_FORMAT(TERRA_TYPE_DISPLAY_EXCEPTION_EXTERNAL,
 					"SDL_UpdateTexture failed! %s", SDL_GetError());
 			}

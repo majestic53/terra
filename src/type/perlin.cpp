@@ -76,7 +76,7 @@ namespace terra {
 			__in int hash,
 			__in double x,
 			__in double y,
-			__in double z
+			__in_opt double z
 			) const
 		{
 			int h;
@@ -112,7 +112,7 @@ namespace terra {
 		}
 
 		double
-		perlin::noise(
+		perlin::sample(
 			__in double x,
 			__in double y,
 			__in double z

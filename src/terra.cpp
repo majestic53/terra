@@ -19,7 +19,6 @@
 #include "../include/interface/runtime.h"
 #include "../include/type/display.h"
 #include "../include/type/generator.h"
-#include "../include/terra.h"
 #include "./terra_type.h"
 
 namespace terra {
@@ -34,6 +33,13 @@ namespace terra {
 			{
 				TRACE_ENTRY();
 				TRACE_EXIT();
+			}
+
+			const terra_t &configuration(void) override
+			{
+				TRACE_ENTRY();
+				TRACE_EXIT_FORMAT("Result=%p", m_configuration);
+				return *m_configuration;
 			}
 
 			const char *error(void)
@@ -91,6 +97,7 @@ namespace terra {
 			friend class terra::type::singleton<terra::runtime>;
 
 			runtime(void) :
+				m_configuration(nullptr),
 				m_display(terra::type::display::instance()),
 				m_generator(terra::type::generator::instance()),
 				m_update(false)
@@ -115,7 +122,8 @@ namespace terra {
 
 				TRACE_ENTRY_FORMAT("Context=%p", context);
 
-				if(!context) {
+				m_configuration = (const terra_t *)context;
+				if(!m_configuration) {
 					THROW_TERRA_EXCEPTION(TERRA_EXCEPTION_CONTEXT_INVALID);
 				}
 
@@ -130,8 +138,8 @@ namespace terra {
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initializing");
 
-				m_generator.initialize(context);
-				m_display.initialize(nullptr);
+				m_generator.initialize(m_configuration);
+				m_display.initialize(m_configuration);
 
 				m_update = true;
 
@@ -240,6 +248,8 @@ namespace terra {
 				TRACE_EXIT_FORMAT("Result=%x", result);
 				return result;
 			}
+
+			const terra_t *m_configuration;
 
 			terra::type::display &m_display;
 

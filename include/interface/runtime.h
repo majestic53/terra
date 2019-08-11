@@ -20,6 +20,7 @@
 #define TERRA_INTERFACE_RUNTIME_H_
 
 #include "../common.h"
+#include "../terra.h"
 
 namespace terra {
 
@@ -28,6 +29,8 @@ namespace terra {
 		class runtime {
 
 			public:
+
+				virtual const terra_t &configuration(void) = 0;
 
 				virtual void set_pixel(
 					__in const color_t &color,

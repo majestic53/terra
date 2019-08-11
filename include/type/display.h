@@ -87,6 +87,8 @@ namespace terra {
 
 				std::string m_title;
 
+				uint32_t m_width;
+
 				SDL_Window *m_window;
 		};
 	}
