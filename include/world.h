@@ -42,6 +42,8 @@ namespace terra {
 				__in int32_t y
 				);
 
+			void reset(void);
+
 			void update(void);
 
 			void zoom(
@@ -80,9 +82,9 @@ namespace terra {
 
 			std::vector<double> m_height;
 
-			std::pair<uint32_t, uint32_t> m_position;
+			std::pair<int32_t, int32_t> m_position;
 
-			std::pair<std::pair<uint32_t, uint32_t>, std::pair<uint32_t, uint32_t>> m_range;
+			std::pair<std::pair<int32_t, int32_t>, std::pair<int32_t, int32_t>> m_range;
 
 			bool m_update;
 

@@ -32,8 +32,6 @@ typedef union {
 } __attribute__((packed)) color_t;
 
 enum {
-	COLOR_PLAYER = 0,
-	// ---
 	COLOR_WATER_DEEP,
 	COLOR_WATER_SHALLOW,
 	COLOR_SAND,
@@ -47,8 +45,6 @@ enum {
 #define COLOR_MAX COLOR_SNOW
 
 static const color_t COL[] = {
-	{{ 0, 0, 255, 255 }}, // COLOR_PLAYER
-	// ---
 	{{ 175, 92, 45, 255 }}, // COLOR_WATER_DEEP
 	{{ 201, 115, 68, 255 }}, // COLOR_WATER_SHALLOW
 	{{ 145, 212, 216, 255 }}, // COLOR_SAND
@@ -64,8 +60,6 @@ static const color_t COL[] = {
 		COL[_TYPE_])
 
 static const double COL_RANGE[] = {
-	0, // COLOR_PLAYER
-	// ---
 	0.35, // COLOR_WATER_DEEP
 	0.45, // COLOR_WATER_SHALLOW
 	0.5, // COLOR_SAND
@@ -79,5 +73,7 @@ static const double COL_RANGE[] = {
 #define COLOR_RANGE(_TYPE_) \
 	(((_TYPE_) > COLOR_MAX) ? COL_RANGE[COLOR_WATER_DEEP] : \
 		COL_RANGE[_TYPE_])
+
+static const color_t COLOR_BACKGROUND = {{ 0, 0, 0, 255 }};
 
 #endif // TERRA_COMMON_COLOR_H_

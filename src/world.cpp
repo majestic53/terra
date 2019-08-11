@@ -73,9 +73,27 @@ namespace terra {
 		__in int32_t y
 		)
 	{
+		std::pair<int32_t, int32_t> position;
+
 		TRACE_ENTRY_FORMAT("X=%i, Y=%i", x, y);
 
-		// TODO: SET m_position/m_range
+		position.first = (m_position.first + x);
+		if(position.first < 0) {
+			m_position.first = 0;
+		} else if(position.first >= m_configuration->width) {
+			m_position.first = (m_configuration->width - 1);
+		} else {
+			m_position.first = position.first;
+		}
+
+		position.second = (m_position.second + y);
+		if(position.second < 0) {
+			m_position.second = 0;
+		} else if(position.second >= m_configuration->height) {
+			m_position.second = (m_configuration->height - 1);
+		} else {
+			m_position.second = position.second;
+		}
 
 		m_update = true;
 
@@ -144,9 +162,16 @@ namespace terra {
 	void
 	world::render(void)
 	{
-		uint32_t pixel_x, pixel_y;
+		int32_t pixel_x, pixel_y;
 
 		TRACE_ENTRY();
+
+		for(pixel_y = 0; pixel_y < m_configuration->height; ++pixel_y) {
+
+			for(pixel_x = 0; pixel_x < m_configuration->width; ++pixel_x) {
+				m_display.set_pixel(COLOR_BACKGROUND, pixel_x, pixel_y);
+			}
+		}
 
 		for(pixel_y = m_range.second.first; pixel_y < m_range.second.second; ++pixel_y) {
 
@@ -154,19 +179,20 @@ namespace terra {
 				double sample;
 				color_t color = {};
 				int type = COLOR_WATER_DEEP;
-				uint32_t subpixel_x, subpixel_y = 0;
+				int32_t subpixel_x, subpixel_y = 0;
 
-				if((pixel_x != m_position.first) || (pixel_y != m_position.second)) {
-					sample = m_height.at((pixel_y * m_configuration->width) + pixel_x);
+				if((pixel_x < 0) || (pixel_x >= m_configuration->width)
+						|| (pixel_y < 0) || (pixel_y >= m_configuration->height)) {
+					continue;
+				}
 
-					for(; type <= COLOR_MAX; ++type) {
+				sample = m_height.at((pixel_y * m_configuration->width) + pixel_x);
 
-						if((sample >= COLOR_RANGE(type - 1)) && (sample <= COLOR_RANGE(type))) {
-							break;
-						}
+				for(; type <= COLOR_MAX; ++type) {
+
+					if((sample >= COLOR_RANGE(type - 1)) && (sample <= COLOR_RANGE(type))) {
+						break;
 					}
-				} else {
-					type = COLOR_PLAYER;
 				}
 
 				color = COLOR(type);
@@ -185,12 +211,34 @@ namespace terra {
 	}
 
 	void
+	world::reset(void)
+	{
+		TRACE_ENTRY();
+
+		m_position = std::make_pair(m_configuration->width / 2, m_configuration->height / 2);
+		m_zoom = ZOOM_MIN;
+
+		m_update = true;
+
+		TRACE_EXIT();
+	}
+
+	void
 	world::update(void)
 	{
 		TRACE_ENTRY();
 
 		if(m_update) {
+			int32_t center_x, center_y;
+
 			m_update = false;
+
+			center_x = ((m_configuration->width / m_zoom) / 2);
+			center_y = ((m_configuration->height / m_zoom) / 2);
+
+			m_range = std::make_pair(std::make_pair(m_position.first - center_x, m_position.first + center_x),
+					std::make_pair(m_position.second - center_y, m_position.second + center_y));
+
 			render();
 		}
 
@@ -204,8 +252,6 @@ namespace terra {
 		__in int32_t z
 		)
 	{
-		uint32_t center_x, center_y, height, width;
-
 		TRACE_ENTRY_FORMAT("Z=%i", z);
 
 		m_zoom += z;
@@ -214,15 +260,6 @@ namespace terra {
 		} else if(m_zoom < ZOOM_MIN) {
 			m_zoom = ZOOM_MIN;
 		}
-
-		width = (m_configuration->width / m_zoom);
-		height = (m_configuration->height / m_zoom);
-
-		center_x = (width / 2);
-		center_y = (height / 2);
-
-		m_range = std::make_pair(std::make_pair(m_position.first - center_x, m_position.first + center_x),
-				std::make_pair(m_position.second - center_y, m_position.second + center_y));
 
 		m_update = true;
 

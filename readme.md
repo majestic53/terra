@@ -73,6 +73,7 @@ Version 0.1.1932
 
 *Updated: 8/11/2019*
 
+* Added keyboard movement/reset
 * Added mousewheel zooming
 * Added world class
 

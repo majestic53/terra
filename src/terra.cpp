@@ -88,50 +88,6 @@ namespace terra {
 				__in const runtime &other
 				) = delete;
 
-			void on_initialize(
-				__in const void *context
-				) override
-			{
-				SDL_version version = {};
-
-				TRACE_ENTRY_FORMAT("Context=%p", context);
-
-				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Terra loaded", "%s", VERSION_STRING());
-
-				if(SDL_Init(SDL_FLAGS)) {
-					THROW_TERRA_EXCEPTION_FORMAT(TERRA_EXCEPTION_EXTERNAL, "SDL_Init failed! %s", SDL_GetError());
-				}
-
-				SDL_GetVersion(&version);
-				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "SDL loaded", "%u.%u.%u", version.major, version.minor, version.patch);
-
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initializing");
-
-				m_world.initialize(context);
-
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initialized");
-
-				TRACE_EXIT();
-			}
-
-			void on_uninitialize(void) override
-			{
-				TRACE_ENTRY();
-
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitializing");
-
-				m_world.uninitialize();
-
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitialized");
-
-				SDL_Quit();
-
-				TRACE_MESSAGE(LEVEL_INFORMATION, "SDL unloaded");
-				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra unloaded");
-
-				TRACE_EXIT();
-			}
-
 			void loop(void)
 			{
 				uint32_t begin = 0, current = 0;
@@ -166,6 +122,10 @@ namespace terra {
 						break;
 					}
 
+					if(m_offset.first || m_offset.second) {
+						m_world.move(m_offset.first, m_offset.second);
+					}
+
 					m_world.update();
 
 					frequency = (SDL_GetTicks() - end);
@@ -181,6 +141,102 @@ namespace terra {
 				TRACE_EXIT();
 			}
 
+			void move(
+				__in const SDL_KeyboardEvent &event
+				)
+			{
+				TRACE_ENTRY_FORMAT("Event=%p", &event);
+
+				if(!event.repeat) {
+					SDL_Scancode scancode = event.keysym.scancode;
+					bool state = (event.state == SDL_PRESSED);
+					std::map<SDL_Scancode, std::pair<int, bool>>::iterator key;
+
+					if((scancode == KEY_RESET) && !state) {
+						m_world.reset();
+					} else {
+
+						key = m_key.find(scancode);
+						if((key != m_key.end()) && (key->second.second != state)) {
+							key->second.second = state;
+
+							switch(key->second.first) {
+								case KEY_RIGHT:
+									m_offset.first = (state ? 1 : 0);
+									break;
+								case KEY_LEFT:
+									m_offset.first = (state ? -1 : 0);
+									break;
+								case KEY_UP:
+									m_offset.second = (state ? -1 : 0);
+									break;
+								case KEY_DOWN:
+									m_offset.second = (state ? 1 : 0);
+									break;
+								default:
+									break;
+							}
+						}
+					}
+				}
+
+				TRACE_EXIT();
+			}
+
+			void on_initialize(
+				__in const void *context
+				) override
+			{
+				int key = 0;
+				SDL_version version = {};
+
+				TRACE_ENTRY_FORMAT("Context=%p", context);
+
+				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Terra loaded", "%s", VERSION_STRING());
+
+				if(SDL_Init(SDL_FLAGS)) {
+					THROW_TERRA_EXCEPTION_FORMAT(TERRA_EXCEPTION_EXTERNAL, "SDL_Init failed! %s", SDL_GetError());
+				}
+
+				SDL_GetVersion(&version);
+				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "SDL loaded", "%u.%u.%u", version.major, version.minor, version.patch);
+
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initializing");
+
+				for(; key <= KEY_MAX; ++key) {
+					m_key.insert(std::make_pair(KEY_VALUE(key), std::make_pair(key, false)));
+				}
+
+				m_offset = std::make_pair(0, 0);
+
+				m_world.initialize(context);
+
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initialized");
+
+				TRACE_EXIT();
+			}
+
+			void on_uninitialize(void) override
+			{
+				TRACE_ENTRY();
+
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitializing");
+
+				m_world.uninitialize();
+
+				m_offset = std::make_pair(0, 0);
+				m_key.clear();
+
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitialized");
+
+				SDL_Quit();
+
+				TRACE_MESSAGE(LEVEL_INFORMATION, "SDL unloaded");
+				TRACE_MESSAGE(LEVEL_INFORMATION, "Terra unloaded");
+
+				TRACE_EXIT();
+			}
+
 			bool poll(void)
 			{
 				bool result = true;
@@ -191,13 +247,12 @@ namespace terra {
 				while(SDL_PollEvent(&event)) {
 
 					switch(event.type) {
+						case SDL_KEYDOWN:
+						case SDL_KEYUP:
+							move(event.key);
+							break;
 						case SDL_MOUSEWHEEL:
-
-							if(event.wheel.y > 0) {
-								m_world.zoom(1);
-							} else if(event.wheel.y < 0) {
-								m_world.zoom(-1);
-							}
+							zoom(event.wheel);
 							break;
 						case SDL_QUIT:
 							result = false;
@@ -215,7 +270,26 @@ namespace terra {
 				return result;
 			}
 
+			void zoom(
+				__in const SDL_MouseWheelEvent &event
+				)
+			{
+				TRACE_ENTRY_FORMAT("Event=%p", &event);
+
+				if(event.y > 0) {
+					m_world.zoom(1);
+				} else if(event.y < 0) {
+					m_world.zoom(-1);
+				}
+
+				TRACE_EXIT();
+			}
+
 			std::string m_error;
+
+			std::map<SDL_Scancode, std::pair<int, bool>> m_key;
+
+			std::pair<int32_t, int32_t> m_offset;
 
 			terra::world &m_world;
 	};
