@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TERRA_INTERFACE_RUNTIME_H_
-#define TERRA_INTERFACE_RUNTIME_H_
+#ifndef TERRA_INTERFACE_WORLD_H_
+#define TERRA_INTERFACE_WORLD_H_
 
 #include "../common.h"
 #include "../terra.h"
@@ -26,19 +26,13 @@ namespace terra {
 
 	namespace interface {
 
-		class runtime {
+		class world {
 
 			public:
 
 				virtual const terra_t &configuration(void) = 0;
-
-				virtual void set_pixel(
-					__in const color_t &color,
-					__in size_t x,
-					__in size_t y
-					) = 0;
 		};
 	}
 }
 
-#endif // TERRA_INTERFACE_RUNTIME_H_
+#endif // TERRA_INTERFACE_WORLD_H_

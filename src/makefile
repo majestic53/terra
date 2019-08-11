@@ -31,7 +31,7 @@ all: build archive
 archive:
 	@echo ''
 	@echo '--- BUILDING LIBRARY -----------------------'
-	ar rcs $(DIR_BIN_LIB)$(LIB) $(DIR_BUILD)base_terra.o \
+	ar rcs $(DIR_BIN_LIB)$(LIB) $(DIR_BUILD)base_terra.o $(DIR_BUILD)base_world.o \
 		$(DIR_BUILD)type_display.o $(DIR_BUILD)type_exception.o $(DIR_BUILD)type_generator.o $(DIR_BUILD)type_perlin.o \
 			$(DIR_BUILD)type_trace.o
 	cp $(DIR_INC)terra.h $(DIR_BIN_INC)
@@ -41,10 +41,13 @@ build: build_base build_type
 
 ### BASE ###
 
-build_base: base_terra.o
+build_base: base_terra.o base_world.o
 
 base_terra.o: $(DIR_SRC)terra.cpp $(DIR_INC)terra.h
 	$(CXX) $(FLAGS) $(BUILD_FLAGS) $(TRACE_FLAGS) -c $(DIR_SRC)terra.cpp -o $(DIR_BUILD)base_terra.o
+
+base_world.o: $(DIR_SRC)world.cpp $(DIR_INC)world.h
+	$(CXX) $(FLAGS) $(BUILD_FLAGS) $(TRACE_FLAGS) -c $(DIR_SRC)world.cpp -o $(DIR_BUILD)base_world.o
 
 ### TYPE ###
 

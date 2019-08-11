@@ -43,6 +43,8 @@ namespace terra {
 					__in_opt double z = 0
 					) const;
 
+				uint32_t seed(void) const;
+
 				void set_seed(
 					__in uint32_t seed
 					);
@@ -75,6 +77,8 @@ namespace terra {
 					) const;
 
 				std::vector<int> m_permutation;
+
+				uint32_t m_seed;
 		};
 	}
 }

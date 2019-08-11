@@ -19,7 +19,7 @@
 #ifndef TERRA_TYPE_GENERATOR_H_
 #define TERRA_TYPE_GENERATOR_H_
 
-#include "../interface/runtime.h"
+#include "../interface/world.h"
 #include "./perlin.h"
 #include "./singleton.h"
 
@@ -34,13 +34,11 @@ namespace terra {
 
 				~generator(void);
 
-				void generate(
-					__in terra::interface::runtime &runtime
+				std::vector<double> generate(
+					__in terra::interface::world &world
 					);
 
-				void update(
-					__in terra::interface::runtime &runtime
-					);
+				terra::type::perlin &perlin(void);
 
 			protected:
 

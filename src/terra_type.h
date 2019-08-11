@@ -31,14 +31,12 @@ namespace terra {
 #endif // NDEBUG
 
 	enum {
-		TERRA_EXCEPTION_CONTEXT_INVALID = 0,
-		TERRA_EXCEPTION_EXTERNAL,
+		TERRA_EXCEPTION_EXTERNAL = 0,
 	};
 
 	#define TERRA_EXCEPTION_MAX TERRA_EXCEPTION_EXTERNAL
 
 	static const std::string TERRA_EXCEPTION_STR[] = {
-		TERRA_EXCEPTION_HEADER "Invalid context",
 		TERRA_EXCEPTION_HEADER "External exception",
 		};
 

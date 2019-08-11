@@ -71,6 +71,11 @@ Changelog
 Version 0.1.1932
 -
 
+*Updated: 8/11/2019*
+
+* Added mousewheel zooming
+* Added world class
+
 *Updated: 8/10/2019*
 
 * Added generator/perlin class

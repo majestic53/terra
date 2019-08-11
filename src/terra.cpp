@@ -16,16 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../include/interface/runtime.h"
-#include "../include/type/display.h"
-#include "../include/type/generator.h"
+#include "../include/world.h"
 #include "./terra_type.h"
 
 namespace terra {
 
 	class runtime :
-			public terra::type::singleton<terra::runtime>,
-			public terra::interface::runtime {
+			public terra::type::singleton<terra::runtime> {
 
 		public:
 
@@ -33,13 +30,6 @@ namespace terra {
 			{
 				TRACE_ENTRY();
 				TRACE_EXIT();
-			}
-
-			const terra_t &configuration(void) override
-			{
-				TRACE_ENTRY();
-				TRACE_EXIT_FORMAT("Result=%p", m_configuration);
-				return *m_configuration;
 			}
 
 			const char *error(void)
@@ -79,28 +69,12 @@ namespace terra {
 				return result;
 			}
 
-			void set_pixel(
-				__in const color_t &color,
-				__in size_t x,
-				__in size_t y
-				) override
-			{
-				TRACE_ENTRY_FORMAT("Color=%u(%08x), Position={%u,%u}", color.raw, color.raw, x, y);
-
-				m_display.set_pixel(color, x, y);
-
-				TRACE_EXIT();
-			}
-
 		protected:
 
 			friend class terra::type::singleton<terra::runtime>;
 
 			runtime(void) :
-				m_configuration(nullptr),
-				m_display(terra::type::display::instance()),
-				m_generator(terra::type::generator::instance()),
-				m_update(false)
+				m_world(terra::world::instance())
 			{
 				TRACE_ENTRY();
 				TRACE_EXIT();
@@ -122,11 +96,6 @@ namespace terra {
 
 				TRACE_ENTRY_FORMAT("Context=%p", context);
 
-				m_configuration = (const terra_t *)context;
-				if(!m_configuration) {
-					THROW_TERRA_EXCEPTION(TERRA_EXCEPTION_CONTEXT_INVALID);
-				}
-
 				TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Terra loaded", "%s", VERSION_STRING());
 
 				if(SDL_Init(SDL_FLAGS)) {
@@ -138,10 +107,7 @@ namespace terra {
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initializing");
 
-				m_generator.initialize(m_configuration);
-				m_display.initialize(m_configuration);
-
-				m_update = true;
+				m_world.initialize(context);
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime initialized");
 
@@ -154,10 +120,7 @@ namespace terra {
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitializing");
 
-				m_update = false;
-
-				m_display.uninitialize();
-				m_generator.uninitialize();
+				m_world.uninitialize();
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime uninitialized");
 
@@ -178,8 +141,8 @@ namespace terra {
 
 				TRACE_MESSAGE(LEVEL_INFORMATION, "Runtime running");
 
-				frame_frequency = m_display.frame_frequency();
-				frame_rate = m_display.frame_rate();
+				frame_frequency = m_world.display().frame_frequency();
+				frame_rate = m_world.display().frame_rate();
 
 				for(;;) {
 					float frequency, rate;
@@ -192,7 +155,7 @@ namespace terra {
 						TRACE_MESSAGE_FORMAT(LEVEL_INFORMATION, "Runtime framerate", "%.1f", (rate > 0.f) ? rate : 0.f);
 
 #ifndef NDEBUG
-						m_display.set_frame_rate((rate > 0.f) ? rate : 0.f);
+						m_world.display().set_frame_rate((rate > 0.f) ? rate : 0.f);
 #endif // NDEBUG
 						begin = end;
 						current = 0;
@@ -203,12 +166,7 @@ namespace terra {
 						break;
 					}
 
-					if(m_update) {
-						m_update = false;
-						m_generator.update(*this);
-					}
-
-					m_display.update(*this);
+					m_world.update();
 
 					frequency = (SDL_GetTicks() - end);
 					if(frequency < frame_frequency) {
@@ -233,6 +191,14 @@ namespace terra {
 				while(SDL_PollEvent(&event)) {
 
 					switch(event.type) {
+						case SDL_MOUSEWHEEL:
+
+							if(event.wheel.y > 0) {
+								m_world.zoom(1);
+							} else if(event.wheel.y < 0) {
+								m_world.zoom(-1);
+							}
+							break;
 						case SDL_QUIT:
 							result = false;
 							break;
@@ -249,15 +215,9 @@ namespace terra {
 				return result;
 			}
 
-			const terra_t *m_configuration;
-
-			terra::type::display &m_display;
-
 			std::string m_error;
 
-			terra::type::generator &m_generator;
-
-			bool m_update;
+			terra::world &m_world;
 	};
 }
 

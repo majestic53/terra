@@ -28,7 +28,8 @@ namespace terra {
 
 	namespace type {
 
-		perlin::perlin(void)
+		perlin::perlin(void) :
+			m_seed(0)
 		{
 			TRACE_ENTRY();
 
@@ -40,7 +41,8 @@ namespace terra {
 
 		perlin::perlin(
 			__in uint32_t seed
-			)
+			) :
+				m_seed(0)
 		{
 			TRACE_ENTRY();
 
@@ -159,6 +161,14 @@ namespace terra {
 			return result;
 		}
 
+		uint32_t
+		perlin::seed(void) const
+		{
+			TRACE_ENTRY();
+			TRACE_EXIT_FORMAT("Result=%u(%08x)", m_seed);
+			return m_seed;
+		}
+
 		void
 		perlin::set_seed(
 			__in uint32_t seed
@@ -168,10 +178,12 @@ namespace terra {
 
 			TRACE_ENTRY_FORMAT("Seed=%u(%08x)", seed, seed);
 
+			m_seed = seed;
+
 			m_permutation.resize(PERMUTATION_LENGTH);
 			std::iota(m_permutation.begin(), m_permutation.end(), 0);
 
-			engine.seed(seed);
+			engine.seed(m_seed);
 			std::shuffle(m_permutation.begin(), m_permutation.end(), engine);
 
 			m_permutation.insert(m_permutation.end(), m_permutation.begin(), m_permutation.end());

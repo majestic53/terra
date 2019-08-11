@@ -76,15 +76,15 @@ namespace terra {
 		#define ARGUMENT_TYPE(_STRING_) \
 			ARGUMENT_MAP.find(_STRING_)->second
 
-		#define DISPLAY_HEIGHT 256
-		#define DISPLAY_WIDTH 256
+		#define DISPLAY_HEIGHT 400
+		#define DISPLAY_WIDTH 400
 
-		#define GENERATOR_LACUNARITY 2.0
-		#define GENERATOR_OCTAVES 4
+		#define GENERATOR_LACUNARITY 2.5
+		#define GENERATOR_OCTAVES 5
 		#define GENERATOR_OFFSET_X 0
 		#define GENERATOR_OFFSET_Y 0
-		#define GENERATOR_PERSISTANCE 0.5
-		#define GENERATOR_SCALE 50.0
+		#define GENERATOR_PERSISTANCE 0.6
+		#define GENERATOR_SCALE 100.0
 
 		#define USAGE "terra [args] seed"
 	}

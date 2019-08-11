@@ -36,24 +36,27 @@ namespace terra {
 			TRACE_EXIT();
 		}
 
-		void
+		std::vector<double>
 		generator::generate(
-			__in terra::interface::runtime &runtime
+			__in terra::interface::world &world
 			)
 		{
 			std::mt19937 engine;
-			std::vector<double> samples;
-			std::vector<std::pair<int32_t, int32_t>> offsets;
-			uint32_t octave, octaves, pixel_x, pixel_y, width, height;
-			double lacunarity, noise_height_max = DBL_MIN, noise_height_min = DBL_MAX, persistance, scale;
+			std::vector<double> result;
+			std::vector<std::pair<double, double>> offsets;
+			uint32_t height, octave, octaves, pixel_x, pixel_y, width;
+			double center_x, center_y, lacunarity, noise_height_max = DBL_MIN, noise_height_min = DBL_MAX, persistance, scale;
 
-			TRACE_ENTRY_FORMAT("Runtime=%p", &runtime);
+			TRACE_ENTRY_FORMAT("World=%p", &world);
 
-			const terra_t &configuration = runtime.configuration();
+			const terra_t &configuration = world.configuration();
 
 			width = configuration.width;
 			height = configuration.height;
-			samples.resize(width * height);
+			result.resize(width * height);
+
+			center_x = (width / 2.0);
+			center_y = (height / 2.0);
 
 			octaves = configuration.octaves;
 			persistance = configuration.persistance;
@@ -68,7 +71,7 @@ namespace terra {
 			engine.seed(configuration.seed);
 
 			for(octave = 0; octave < octaves; ++octave) {
-				int32_t offset_x = (engine() + configuration.offset_x), offset_y = (engine() + configuration.offset_y);
+				double offset_x = (engine() + configuration.offset_x), offset_y = (engine() + configuration.offset_y);
 
 				if(offset_x > OCTAVE_OFFSET_MAX) {
 					offset_x = OCTAVE_OFFSET_MAX;
@@ -93,8 +96,8 @@ namespace terra {
 					for(octave = 0; octave < octaves; ++octave) {
 						double sample, sample_x, sample_y;
 
-						sample_x = (((pixel_x / scale) * frequency) + offsets.at(octave).first);
-						sample_y = (((pixel_y / scale) * frequency) + offsets.at(octave).second);
+						sample_x = ((((pixel_x - center_x) / scale) * frequency) + offsets.at(octave).first);
+						sample_y = ((((pixel_y - center_y) / scale) * frequency) + offsets.at(octave).second);
 
 						sample = ((m_perlin.sample(sample_x, sample_y) * 2.0) - 1.0);
 
@@ -110,31 +113,21 @@ namespace terra {
 						noise_height_min = noise_height;
 					}
 
-					samples.at((pixel_y * width) + pixel_x) = noise_height;
+					result.at((pixel_y * width) + pixel_x) = noise_height;
 				}
 			}
 
 			for(pixel_y = 0; pixel_y < height; ++pixel_y) {
 
 				for(pixel_x = 0; pixel_x < width; ++pixel_x) {
-					int type = COLOR_WATER_DEEP;
-					double sample;
+					size_t index = ((pixel_y * width) + pixel_x);
 
-					sample = ((samples.at((pixel_y * width) + pixel_x) - noise_height_min)
-							* (1.0 / (noise_height_max - noise_height_min)));
-
-					for(; type <= COLOR_MAX; ++type) {
-
-						if((sample >= COLOR_RANGE(type - 1)) && (sample <= COLOR_RANGE(type))) {
-							break;
-						}
-					}
-
-					runtime.set_pixel(COLOR(type), pixel_x, pixel_y);
+					result.at(index) = ((result.at(index) - noise_height_min) * (1.0 / (noise_height_max - noise_height_min)));
 				}
 			}
 
-			TRACE_EXIT();
+			TRACE_EXIT_FORMAT("Result[%u]=%p", result.size(), &result);
+			return result;
 		}
 
 		void
@@ -179,16 +172,12 @@ namespace terra {
 			TRACE_EXIT();
 		}
 
-		void
-		generator::update(
-			__in terra::interface::runtime &runtime
-			)
+		terra::type::perlin &
+		generator::perlin(void)
 		{
-			TRACE_ENTRY_FORMAT("Runtime=%p", &runtime);
-
-			generate(runtime);
-
-			TRACE_EXIT();
+			TRACE_ENTRY();
+			TRACE_EXIT_FORMAT("Result=%p", &m_perlin);
+			return m_perlin;
 		}
 	}
 }

@@ -31,4 +31,53 @@ typedef union {
 	uint32_t raw;
 } __attribute__((packed)) color_t;
 
+enum {
+	COLOR_PLAYER = 0,
+	// ---
+	COLOR_WATER_DEEP,
+	COLOR_WATER_SHALLOW,
+	COLOR_SAND,
+	COLOR_GRASS,
+	COLOR_GRASS_DARK,
+	COLOR_STONE,
+	COLOR_STONE_DARK,
+	COLOR_SNOW,
+};
+
+#define COLOR_MAX COLOR_SNOW
+
+static const color_t COL[] = {
+	{{ 0, 0, 255, 255 }}, // COLOR_PLAYER
+	// ---
+	{{ 175, 92, 45, 255 }}, // COLOR_WATER_DEEP
+	{{ 201, 115, 68, 255 }}, // COLOR_WATER_SHALLOW
+	{{ 145, 212, 216, 255 }}, // COLOR_SAND
+	{{ 53, 157, 112, 255 }}, // COLOR_GRASS
+	{{ 38, 115, 82, 255 }}, // COLOR_GRASS_DARK
+	{{ 72, 78, 101, 255 }}, // COLOR_STONE
+	{{ 66, 69, 84, 255 }}, // COLOR_STONE_DARK
+	{{ 255, 255, 255, 255 }}, // COLOR_SNOW
+	};
+
+#define COLOR(_TYPE_) \
+	(((_TYPE_) > COLOR_MAX) ? COL[COLOR_WATER_DEEP] : \
+		COL[_TYPE_])
+
+static const double COL_RANGE[] = {
+	0, // COLOR_PLAYER
+	// ---
+	0.35, // COLOR_WATER_DEEP
+	0.45, // COLOR_WATER_SHALLOW
+	0.5, // COLOR_SAND
+	0.65, // COLOR_GRASS
+	0.7, // COLOR_GRASS_DARK
+	0.8, // COLOR_STONE
+	0.9, // COLOR_STONE_DARK
+	1.0, // COLOR_SNOW
+	};
+
+#define COLOR_RANGE(_TYPE_) \
+	(((_TYPE_) > COLOR_MAX) ? COL_RANGE[COLOR_WATER_DEEP] : \
+		COL_RANGE[_TYPE_])
+
 #endif // TERRA_COMMON_COLOR_H_

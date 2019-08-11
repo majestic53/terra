@@ -19,7 +19,7 @@
 #ifndef TERRA_TYPE_DISPLAY_H_
 #define TERRA_TYPE_DISPLAY_H_
 
-#include "../interface/runtime.h"
+#include "../interface/world.h"
 #include "./singleton.h"
 
 namespace terra {
@@ -32,6 +32,10 @@ namespace terra {
 			public:
 
 				~display(void);
+
+				void clear(
+					__in terra::interface::world &world
+					);
 
 				float frame_frequency(void) const;
 
@@ -51,8 +55,8 @@ namespace terra {
 					__in const std::string &title
 					);
 
-				void update(
-					__in terra::interface::runtime &runtime
+				void show(
+					__in terra::interface::world &world
 					);
 
 			protected:
