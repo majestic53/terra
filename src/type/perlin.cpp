@@ -174,7 +174,7 @@ namespace terra {
 			__in uint32_t seed
 			)
 		{
-			std::mt19937 engine;
+			std::default_random_engine engine;
 
 			TRACE_ENTRY_FORMAT("Seed=%u(%08x)", seed, seed);
 

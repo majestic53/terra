@@ -64,7 +64,9 @@
 #define MILLISECONDS_PER_SECOND 1000.f
 
 #include "./common/color.h"
+#include "./common/configuration.h"
 #include "./common/exception.h"
+#include "./common/key.h"
 #include "./common/level.h"
 #include "./common/string.h"
 #include "./common/trace.h"

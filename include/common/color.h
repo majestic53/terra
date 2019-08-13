@@ -36,9 +36,9 @@ enum {
 	COLOR_WATER_SHALLOW,
 	COLOR_SAND,
 	COLOR_GRASS,
-	COLOR_GRASS_DARK,
+	COLOR_DIRT,
+	COLOR_GRAVEL,
 	COLOR_STONE,
-	COLOR_STONE_DARK,
 	COLOR_SNOW,
 };
 
@@ -49,9 +49,9 @@ static const color_t COL[] = {
 	{{ 201, 115, 68, 255 }}, // COLOR_WATER_SHALLOW
 	{{ 145, 212, 216, 255 }}, // COLOR_SAND
 	{{ 53, 157, 112, 255 }}, // COLOR_GRASS
-	{{ 38, 115, 82, 255 }}, // COLOR_GRASS_DARK
-	{{ 72, 78, 101, 255 }}, // COLOR_STONE
-	{{ 66, 69, 84, 255 }}, // COLOR_STONE_DARK
+	{{ 38, 115, 82, 255 }}, // COLOR_DIRT
+	{{ 72, 78, 101, 255 }}, // COLOR_GRAVEL
+	{{ 66, 69, 84, 255 }}, // COLOR_STONE
 	{{ 255, 255, 255, 255 }}, // COLOR_SNOW
 	};
 
@@ -64,8 +64,8 @@ static const double COL_RANGE[] = {
 	0.45, // COLOR_WATER_SHALLOW
 	0.5, // COLOR_SAND
 	0.65, // COLOR_GRASS
-	0.7, // COLOR_GRASS_DARK
-	0.8, // COLOR_STONE
+	0.7, // COLOR_DIR
+	0.8, // COLOR_GRAVEL
 	0.9, // COLOR_STONE_DARK
 	1.0, // COLOR_SNOW
 	};

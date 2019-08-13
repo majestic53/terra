@@ -68,6 +68,13 @@ $ make TRACE=3
 Changelog
 =
 
+Version 0.1.1933
+-
+
+*Updated: 8/12/2019*
+
+* Added texture class
+
 Version 0.1.1932
 -
 

@@ -49,33 +49,7 @@ namespace terra {
 	#define THROW_TERRA_EXCEPTION_FORMAT(_EXCEPT_, _FORMAT_, ...) \
 		THROW_EXCEPTION(TERRA_EXCEPTION_STRING(_EXCEPT_), _FORMAT_, __VA_ARGS__)
 
-	enum {
-		KEY_RIGHT = 0,
-		KEY_LEFT,
-		KEY_UP,
-		KEY_DOWN,
-	};
-
-	#define KEY_MAX KEY_DOWN
-
-	static const SDL_Scancode KEY_VAL[] = {
-		SDL_SCANCODE_D, // KEY_RIGHT
-		SDL_SCANCODE_A, // KEY_LEFT
-		SDL_SCANCODE_W, // KEY_UP
-		SDL_SCANCODE_S, // KEY_DOWN
-		};
-
-	#define KEY_VALUE(_TYPE_) \
-		(((_TYPE_) > KEY_MAX) ? SDL_SCANCODE_UNKNOWN : \
-			KEY_VAL[_TYPE_])
-
-	#define KEY_RESET SDL_SCANCODE_SPACE
-
-	#define MOVE_SPEED 1
-
 	#define SDL_FLAGS (SDL_INIT_VIDEO)
-
-	#define ZOOM_SPEED 1
 }
 
 #endif // TERRA_TYPE_H_

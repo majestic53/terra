@@ -108,12 +108,11 @@ namespace terra {
 		__in int32_t y
 		)
 	{
-		double average = 0, count = 0;
-		int32_t radius_x, radius_x_high, radius_x_low, radius_y, radius_y_high, radius_y_low;
-
 		TRACE_ENTRY_FORMAT("Color=%p, Height=%g, X=%i, Y=%i", &color, height, x, y);
 
 		if(height >= OCCLUSION_LIMIT) {
+			double average = 0, count = 0;
+			int32_t radius_x, radius_x_high, radius_x_low, radius_y, radius_y_high, radius_y_low;
 
 			if(x <= (OCCLUSION_RADIUS - 1)) {
 
@@ -214,16 +213,18 @@ namespace terra {
 
 		m_position = std::make_pair(m_configuration->width / 2, m_configuration->height / 2);
 		m_range = std::make_pair(std::make_pair(0, m_configuration->width), std::make_pair(0, m_configuration->height));
+#ifndef DISABLE_TEXTURE
+		m_texture.load(TEXTURE_PATH);
+#endif // DISABLE_TEXTURE
 		m_zoom = ZOOM_MIN;
 
 		m_generator.initialize(m_configuration);
 		m_generator.generate(*this);
 
 		m_display.initialize(m_configuration);
-
 		title << TERRA << " " << VERSION_STRING() << " (Seed:" << m_generator.perlin().seed() << ")";
-
 		m_display.set_title(title.str());
+
 		m_update = true;
 
 		TRACE_MESSAGE(LEVEL_INFORMATION, "World initialized");
@@ -244,6 +245,9 @@ namespace terra {
 		m_generator.uninitialize();
 
 		m_zoom = ZOOM_MIN;
+#ifndef DISABLE_TEXTURE
+		m_texture.unload();
+#endif // DISABLE_TEXTURE
 		m_range = std::make_pair(std::make_pair(0, 0), std::make_pair(0, 0));
 		m_position = std::make_pair(0, 0);
 
@@ -288,15 +292,35 @@ namespace terra {
 
 					for(subpixel_x = 0; subpixel_x < magnification; ++subpixel_x) {
 						texture(color, height, subpixel_x, subpixel_y);
-#ifndef OCCLUSION_DISABLE
+#ifndef DISABLE_OCCLUSION
 						occlude(color, height, pixel_x, pixel_y);
-#endif // OCCLUSION_DISABLE
+#endif // DISABLE_OCCLUSION
 						m_display.set_pixel(color, ((pixel_x - m_range.first.first) * magnification) + subpixel_x,
 							((pixel_y - m_range.second.first) * magnification) + subpixel_y);
 					}
 				}
 			}
 		}
+
+		TRACE_EXIT();
+	}
+
+	void
+	world::regenerate(
+		__in uint32_t seed
+		)
+	{
+		std::stringstream title;
+
+		TRACE_ENTRY_FORMAT("Seed=%u(%08x)", seed, seed);
+
+		m_generator.perlin().set_seed(seed);
+		m_generator.generate(*this);
+
+		title << TERRA << " " << VERSION_STRING() << " (Seed:" << m_generator.perlin().seed() << ")";
+		m_display.set_title(title.str());
+
+		m_update = true;
 
 		TRACE_EXIT();
 	}
@@ -322,7 +346,7 @@ namespace terra {
 		__in int32_t y
 		)
 	{
-		int type = COLOR_WATER_DEEP;
+		int type = 0;
 
 		TRACE_ENTRY_FORMAT("Color=%p, Height=%g, X=%i, Y=%i", &color, height, x, y);
 
@@ -333,13 +357,17 @@ namespace terra {
 			}
 		}
 
-#ifndef TEXTURE_DISABLE
-
-		// TODO: INTERPOLATE TEXTURE[TYPE] AT SUBPIXEL
-
+#ifndef DISABLE_TEXTURE
+		color = m_texture.color((type <= COLOR_MAX) ? type : COLOR_WATER_DEEP, m_zoom, x, y);
 #else
-		color = COLOR(type);
-#endif // TEXTURE_DISABLE
+#ifndef DISABLE_COLOR
+		color = COLOR((type <= COLOR_MAX) ? type : COLOR_WATER_DEEP);
+#else
+		uint8_t channel = (UINT8_MAX * height);
+
+		color = {{ channel, channel, channel, UINT8_MAX }};
+#endif // DISABLE_COLOR
+#endif // DISABLE_TEXTURE
 
 		TRACE_EXIT();
 	}

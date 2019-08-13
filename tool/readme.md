@@ -39,5 +39,5 @@ $ ./bin/terra
 The following example shows how to launch terra with a specified seed:
 
 ```
-$ ./bin/nescore 12345
+$ ./bin/terra 12345
 ```

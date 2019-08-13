@@ -148,12 +148,17 @@ namespace terra {
 				TRACE_ENTRY_FORMAT("Event=%p", &event);
 
 				if(!event.repeat) {
-					SDL_Scancode scancode = event.keysym.scancode;
-					bool state = (event.state == SDL_PRESSED);
+					bool state;
+					SDL_Scancode scancode;
 					std::map<SDL_Scancode, std::pair<int, bool>>::iterator key;
 
+					state = (event.state == SDL_PRESSED);
+
+					scancode = event.keysym.scancode;
 					if((scancode == KEY_RESET) && !state) {
 						m_world.reset();
+					} else if((scancode == KEY_REGENERATE) && !state) {
+						m_world.regenerate(std::rand());
 					} else {
 
 						key = m_key.find(scancode);
@@ -161,16 +166,20 @@ namespace terra {
 							key->second.second = state;
 
 							switch(key->second.first) {
-								case KEY_RIGHT:
+								case KEY_ARROW_RIGHT:
+								case KEY_WASD_RIGHT:
 									m_offset.first = (state ? MOVE_SPEED : 0);
 									break;
-								case KEY_LEFT:
+								case KEY_ARROW_LEFT:
+								case KEY_WASD_LEFT:
 									m_offset.first = (state ? -MOVE_SPEED : 0);
 									break;
-								case KEY_UP:
+								case KEY_ARROW_UP:
+								case KEY_WASD_UP:
 									m_offset.second = (state ? -MOVE_SPEED : 0);
 									break;
-								case KEY_DOWN:
+								case KEY_ARROW_DOWN:
+								case KEY_WASD_DOWN:
 									m_offset.second = (state ? MOVE_SPEED : 0);
 									break;
 								default:

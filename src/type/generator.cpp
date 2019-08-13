@@ -41,7 +41,7 @@ namespace terra {
 			__in terra::interface::world &world
 			)
 		{
-			std::mt19937 engine;
+			std::default_random_engine engine;
 			std::vector<std::pair<double, double>> offsets;
 			uint32_t height, octave, octaves, pixel_x, pixel_y, width;
 			double center_x, center_y, lacunarity, noise_height_max = DBL_MIN, noise_height_min = DBL_MAX, persistance, scale;
@@ -68,7 +68,7 @@ namespace terra {
 			}
 
 			offsets.resize(octaves);
-			engine.seed(configuration.seed);
+			engine.seed(m_perlin.seed());
 
 			for(octave = 0; octave < octaves; ++octave) {
 				double offset_x = (engine() + configuration.offset_x), offset_y = (engine() + configuration.offset_y);

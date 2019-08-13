@@ -22,6 +22,7 @@
 #include "./interface/world.h"
 #include "./type/display.h"
 #include "./type/generator.h"
+#include "./type/texture.h"
 
 namespace terra {
 
@@ -40,6 +41,10 @@ namespace terra {
 			void move(
 				__in int32_t x,
 				__in int32_t y
+				);
+
+			void regenerate(
+				__in uint32_t seed
 				);
 
 			void reset(void);
@@ -99,6 +104,8 @@ namespace terra {
 			std::pair<int32_t, int32_t> m_position;
 
 			std::pair<std::pair<int32_t, int32_t>, std::pair<int32_t, int32_t>> m_range;
+
+			terra::type::texture m_texture;
 
 			bool m_update;
 
