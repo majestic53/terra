@@ -51,6 +51,29 @@ namespace terra {
 		return *m_configuration;
 	}
 
+	void
+	world::crosshair(void)
+	{
+		int32_t center_x, center_y, x, y = -CROSSHAIR_WIDTH;
+
+		TRACE_ENTRY();
+
+		center_x = (m_configuration->width / 2);
+		center_y = (m_configuration->height / 2);
+
+		for(; y <= CROSSHAIR_WIDTH; ++y) {
+
+			for(x = -CROSSHAIR_WIDTH; x <= CROSSHAIR_WIDTH; ++x) {
+
+				if(!x || !y) {
+					m_display.set_pixel(COLOR_CROSSHAIR, x + center_x, y + center_y);
+				}
+			}
+		}
+
+		TRACE_EXIT();
+	}
+
 	terra::type::display &
 	world::display(void)
 	{
@@ -302,6 +325,10 @@ namespace terra {
 			}
 		}
 
+#ifndef DISABLE_CROSSHAIR
+		crosshair();
+#endif // DISABLE_CROSSHAIR
+
 		TRACE_EXIT();
 	}
 
@@ -358,10 +385,10 @@ namespace terra {
 		}
 
 #ifndef DISABLE_TEXTURE
-		color = m_texture.color((type <= COLOR_MAX) ? type : COLOR_WATER_DEEP, m_zoom, x, y);
+		color = m_texture.color((type <= COLOR_MAX) ? type : COLOR_MIN, m_zoom, x, y);
 #else
 #ifndef DISABLE_COLOR
-		color = COLOR((type <= COLOR_MAX) ? type : COLOR_WATER_DEEP);
+		color = COLOR((type <= COLOR_MAX) ? type : COLOR_MIN);
 #else
 		uint8_t channel = (UINT8_MAX * height);
 

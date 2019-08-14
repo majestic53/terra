@@ -80,7 +80,7 @@ namespace terra {
 			__in const std::string &path
 			)
 		{
-			int zoom, type;
+			int zoom;
 			SDL_Surface *surface;
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING(path));
@@ -94,13 +94,11 @@ namespace terra {
 			m_tiles.clear();
 
 			for(zoom = ZOOM_MIN; zoom <= ZOOM_MAX; ++zoom) {
-				uint32_t length, magnification;
+				int type = COLOR_MIN;
+				uint32_t magnification;
 				std::vector<std::vector<color_t>> tiles;
 
-				magnification = std::pow(2, zoom);
-				length = (magnification * magnification);
-
-				for(type = 0; type <= COLOR_MAX; ++type) {
+				for(; type <= COLOR_MAX; ++type) {
 					std::vector<color_t> tile;
 					uint32_t tile_x, tile_y = 0, x, y = 0;
 
@@ -112,18 +110,18 @@ namespace terra {
 					}
 
 					tiles.push_back(std::vector<color_t>());
-					tiles.back().resize(length, COLOR_BACKGROUND);
+					magnification = std::pow(2, zoom);
 
 					for(; y < magnification; ++y) {
 
 						for(x = 0; x < magnification; ++x) {
-							color_t color = COLOR_BACKGROUND;
+							color_t color;
 
 							// TODO
-							color = tile.at((y * magnification) + x);
+							color = tile.at((y * TILE_WIDTH) + x);
 							// ---
 
-							tiles.back().at((y * magnification) + x) = color;
+							tiles.back().push_back(color);
 						}
 					}
 				}
@@ -161,11 +159,7 @@ namespace terra {
 			TRACE_ENTRY_FORMAT("Surface=%p, X=%u, Y=%u", surface, x, y);
 
 			if(surface) {
-				size_t index = (((y * surface->pitch) + x) * sizeof(uint32_t));
-
-				result.blue = ((uint8_t *)surface->pixels)[index];
-				result.green = ((uint8_t *)surface->pixels)[++index];
-				result.red = ((uint8_t *)surface->pixels)[++index];
+				result.raw = ((uint32_t *)surface->pixels)[(y * ((COLOR_MAX + 1) * TILE_WIDTH)) + x];
 			}
 
 			TRACE_EXIT();

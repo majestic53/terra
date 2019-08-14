@@ -3,7 +3,7 @@ Terra
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Build Status](https://travis-ci.com/majestic53/terra.svg?branch=master)](https://travis-ci.com/majestic53/terra)
 
-A procedural terrain generator
+A 2D procedural terrain generator
 
 Table of Contents
 =
@@ -70,6 +70,10 @@ Changelog
 
 Version 0.1.1933
 -
+
+*Updated: 8/13/2019*
+
+* Added crosshair
 
 *Updated: 8/12/2019*
 

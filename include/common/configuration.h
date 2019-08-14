@@ -19,7 +19,14 @@
 #ifndef TERRA_COMMON_CONFIGURATION_H_
 #define TERRA_COMMON_CONFIGURATION_H_
 
+static const color_t COLOR_BACKGROUND = {{ 0, 0, 0, 255 }};
+
+static const color_t COLOR_CROSSHAIR = {{ 0, 0, 255, 255 }};
+
+#define CROSSHAIR_WIDTH 2
+
 //#define DISABLE_COLOR
+//#define DISABLE_CROSSHAIR
 //#define DISABLE_OCCLUSION
 #define DISABLE_TEXTURE
 
@@ -59,7 +66,7 @@ static const SDL_Scancode KEY_VAL[] = {
 
 #define TILE_WIDTH 16
 
-#define ZOOM_MAX 3
+#define ZOOM_MAX 4
 #define ZOOM_MIN 0
 
 #define ZOOM_SPEED 1
