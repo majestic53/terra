@@ -26,13 +26,17 @@ static const color_t COLOR_CROSSHAIR = {{ 0, 0, 255, 255 }};
 #define CROSSHAIR_WIDTH 2
 
 //#define DISABLE_COLOR
-//#define DISABLE_CROSSHAIR
+#define DISABLE_CROSSHAIR
+//#define DISABLE_FALLOFF
 //#define DISABLE_OCCLUSION
 #define DISABLE_TEXTURE
 
 #define DISPLAY_HEIGHT 512
 #define DISPLAY_SCALE 2
 #define DISPLAY_WIDTH 512
+
+#define FALLOFF_CURVE 3
+#define FALLOFF_SCALE 2.2
 
 #define GENERATOR_LACUNARITY 2.5
 #define GENERATOR_OCTAVES 5
@@ -62,7 +66,7 @@ static const SDL_Scancode KEY_VAL[] = {
 #define OCCLUSION_RADIUS 1
 #define OCCLUSION_SCALE 16
 
-#define TEXTURE_PATH "./asset/texture_flat.bmp"
+#define TEXTURE_PATH "./asset/texture_mc.bmp"
 
 #define TILE_WIDTH 16
 

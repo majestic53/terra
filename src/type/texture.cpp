@@ -64,7 +64,7 @@ namespace terra {
 
 			const std::vector<color_t> &pixels = tile.at(type);
 
-			index = ((y * zoom) + x);
+			index = ((y * std::pow(2, zoom)) + x);
 			if(index >= pixels.size()) {
 				THROW_TERRA_TYPE_TEXTURE_EXCEPTION_FORMAT(TERRA_TYPE_TEXTURE_EXCEPTION_PIXEL_INVALID, "%u, %u", x, y);
 			}
@@ -80,8 +80,8 @@ namespace terra {
 			__in const std::string &path
 			)
 		{
-			int zoom;
 			SDL_Surface *surface;
+			int layout, order, type, zoom;
 
 			TRACE_ENTRY_FORMAT("Path[%u]=%s", path.size(), STRING(path));
 
@@ -91,35 +91,62 @@ namespace terra {
 					"SDL_LoadBMP failed! %s", SDL_GetError());
 			}
 
+			type = SDL_PIXELTYPE(surface->format->format);
+			order = SDL_PIXELORDER(surface->format->format);
+			layout = SDL_PIXELLAYOUT(surface->format->format);
+
+			if((type != SDL_PIXELTYPE_PACKED32) || (order != SDL_ARRAYORDER_ARGB) || (layout != SDL_PACKEDLAYOUT_8888)) {
+				THROW_TERRA_TYPE_TEXTURE_EXCEPTION_FORMAT(TERRA_TYPE_TEXTURE_EXCEPTION_FORMAT_INVALID,
+					"%s", STRING(path));
+			}
+
 			m_tiles.clear();
 
 			for(zoom = ZOOM_MIN; zoom <= ZOOM_MAX; ++zoom) {
-				int type = COLOR_MIN;
-				uint32_t magnification;
 				std::vector<std::vector<color_t>> tiles;
 
-				for(; type <= COLOR_MAX; ++type) {
-					std::vector<color_t> tile;
-					uint32_t tile_x, tile_y = 0, x, y = 0;
+				for(type = COLOR_MIN; type <= COLOR_MAX; ++type) {
+					std::vector<color_t> tile_texture;
+					uint32_t magnification, subtile, tile_x, tile_y = 0, x, y = 0;
 
 					for(; tile_y < TILE_WIDTH; ++tile_y) {
 
 						for(tile_x = 0; tile_x < TILE_WIDTH; ++tile_x) {
-							tile.push_back(pixel(surface, tile_x + (type * TILE_WIDTH), tile_y));
+							tile_texture.push_back(pixel(surface, tile_x + (type * TILE_WIDTH), tile_y));
 						}
 					}
 
 					tiles.push_back(std::vector<color_t>());
 					magnification = std::pow(2, zoom);
+					subtile = (TILE_WIDTH / magnification);
 
 					for(; y < magnification; ++y) {
 
 						for(x = 0; x < magnification; ++x) {
-							color_t color;
+							color_t color = COLOR_BACKGROUND;
+							int count = 0, pixel_x, pixel_y = 0;
+							uint32_t channel_red = 0, channel_green = 0, channel_blue = 0;
 
-							// TODO
-							color = tile.at((y * TILE_WIDTH) + x);
-							// ---
+							for(; pixel_y < subtile; ++pixel_y) {
+
+								for(pixel_x = 0; pixel_x < subtile; ++pixel_x) {
+									color_t tile_color;
+									size_t index = ((pixel_y + (y * subtile)) * TILE_WIDTH)
+											+ (pixel_x + (x * subtile));
+
+									tile_color = tile_texture.at(index);
+
+									channel_red += tile_color.red;
+									channel_green += tile_color.green;
+									channel_blue += tile_color.blue;
+
+									++count;
+								}
+							}
+
+							color.red = (channel_red / (double)count);
+							color.green = (channel_green / (double)count);
+							color.blue = (channel_blue / (double)count);
 
 							tiles.back().push_back(color);
 						}

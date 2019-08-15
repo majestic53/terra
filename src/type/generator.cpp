@@ -41,6 +41,7 @@ namespace terra {
 			__in terra::interface::world &world
 			)
 		{
+			std::vector<double> falloff;
 			std::default_random_engine engine;
 			std::vector<std::pair<double, double>> offsets;
 			uint32_t height, octave, octaves, pixel_x, pixel_y, width;
@@ -88,9 +89,30 @@ namespace terra {
 				offsets.at(octave) = std::make_pair(offset_x, offset_y);
 			}
 
+			falloff.resize(width * height, 0);
+
+#ifndef DISABLE_FALLOFF
 			for(pixel_y = 0; pixel_y < height; ++pixel_y) {
 
 				for(pixel_x = 0; pixel_x < width; ++pixel_x) {
+					double sample, sample_x, sample_y;
+
+					sample_x = (((pixel_x / (double)width) * 2.0) - 1.0);
+					sample_y = (((pixel_y / (double)height) * 2.0) - 1.0);
+
+					sample = std::max(std::abs(sample_x), std::abs(sample_y));
+					sample = (std::pow(sample, (double)FALLOFF_CURVE) / (std::pow(sample, (double)FALLOFF_CURVE)
+							+ std::pow(FALLOFF_SCALE - (sample * FALLOFF_SCALE), (double)FALLOFF_CURVE)));
+
+					falloff.at((pixel_y * width) + pixel_x) = sample;
+				}
+			}
+#endif // DISABLE_FALLOFF
+
+			for(pixel_y = 0; pixel_y < height; ++pixel_y) {
+
+				for(pixel_x = 0; pixel_x < width; ++pixel_x) {
+					size_t index = ((pixel_y * width) + pixel_x);
 					double amplitude = 1.0, frequency = 1.0, noise_height = 0.0;
 
 					for(octave = 0; octave < octaves; ++octave) {
@@ -107,13 +129,16 @@ namespace terra {
 						frequency *= lacunarity;
 					}
 
+#ifndef DISABLE_FALLOFF
+					noise_height = std::clamp(noise_height - falloff.at(index), -1.0, 1.0);
+#endif // DISABLE_FALLOFF
 					if(noise_height > noise_height_max) {
 						noise_height_max = noise_height;
 					} else if(noise_height < noise_height_min) {
 						noise_height_min = noise_height;
 					}
 
-					terra::type::generator::at((pixel_y * width) + pixel_x) = noise_height;
+					terra::type::generator::at(index) = noise_height;
 				}
 			}
 

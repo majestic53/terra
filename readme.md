@@ -5,6 +5,8 @@ Terra
 
 A 2D procedural terrain generator
 
+![Demo](https://github.com/majestic53/terra/tree/master/asset/demo.png "Random terrain generation")
+
 Table of Contents
 =
 
@@ -70,6 +72,10 @@ Changelog
 
 Version 0.1.1933
 -
+
+*Updated: 8/14/2019*
+
+* Added falloff/texture support
 
 *Updated: 8/13/2019*
 
