@@ -5,7 +5,7 @@ Terra
 
 A 2D procedural terrain generator
 
-![Demo](https://github.com/majestic53/terra/tree/master/asset/demo.png "Random terrain generation")
+![Demo](https://github.com/majestic53/terra/blob/master/asset/demo.png "Random terrain generation")
 
 Table of Contents
 =
