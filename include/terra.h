@@ -39,14 +39,6 @@ typedef struct {
 	// Window dimensions
 	uint32_t width;
 	uint32_t height;
-
-	// Generator parameters
-	double scale;
-	uint32_t octaves;
-	double persistance;
-	double lacunarity;
-	int32_t offset_x;
-	int32_t offset_y;
 } terra_t;
 
 #ifdef __cplusplus

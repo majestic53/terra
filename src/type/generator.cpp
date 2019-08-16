@@ -59,11 +59,11 @@ namespace terra {
 			center_x = (width / 2.0);
 			center_y = (height / 2.0);
 
-			octaves = configuration.octaves;
-			persistance = configuration.persistance;
-			lacunarity = configuration.lacunarity;
+			octaves = PERLIN_OCTAVES;
+			persistance = PERLIN_PERSISTANCE;
+			lacunarity = PERLIN_LACUNARITY;
 
-			scale = configuration.scale;
+			scale = PERLIN_SCALE;
 			if(scale <= 0) {
 				scale = SCALE_MIN;
 			}
@@ -72,7 +72,7 @@ namespace terra {
 			engine.seed(m_perlin.seed());
 
 			for(octave = 0; octave < octaves; ++octave) {
-				double offset_x = (engine() + configuration.offset_x), offset_y = (engine() + configuration.offset_y);
+				double offset_x = (engine() + PERLIN_OFFSET_X), offset_y = (engine() + PERLIN_OFFSET_Y);
 
 				if(offset_x > OCTAVE_OFFSET_MAX) {
 					offset_x = OCTAVE_OFFSET_MAX;

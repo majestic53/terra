@@ -59,13 +59,6 @@ namespace terra {
 							m_configuration.width = DISPLAY_WIDTH;
 							m_configuration.height = DISPLAY_HEIGHT;
 
-							m_configuration.scale = GENERATOR_SCALE;
-							m_configuration.octaves = GENERATOR_OCTAVES;
-							m_configuration.persistance = GENERATOR_PERSISTANCE;
-							m_configuration.lacunarity = GENERATOR_LACUNARITY;
-							m_configuration.offset_x = GENERATOR_OFFSET_X;
-							m_configuration.offset_y = GENERATOR_OFFSET_Y;
-
 							result = terra_run(&m_configuration);
 							if(result != EXIT_SUCCESS) {
 								std::cerr << "Error: " << terra_error() << std::endl;

@@ -28,6 +28,20 @@ terra [args] seed
 -v|--version                    Display version information
 ```
 
+#### Controls
+
+The following keys allow the user to control terra during runtime:
+
+|Key    |Action     |
+|-------|-----------|
+|W/Up   |Move up    |
+|A/Left |Move left  |
+|S/Down |Move down  |
+|D/Right|Move right |
+|+/-    |Zoom in/out|
+|Space  |Reset      |
+|R      |Regenerate |
+
 #### Examples
 
 The following example shows how to launch terra with a randomly generated seed:

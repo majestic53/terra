@@ -73,6 +73,11 @@ Changelog
 Version 0.1.1933
 -
 
+*Updated: 8/15/2019*
+
+* Added zoom key controls
+* Code cleanup
+
 *Updated: 8/14/2019*
 
 * Added falloff/texture support

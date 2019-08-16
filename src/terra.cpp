@@ -159,6 +159,10 @@ namespace terra {
 						m_world.reset();
 					} else if((scancode == KEY_REGENERATE) && !state) {
 						m_world.regenerate(std::rand());
+					} else if((scancode == KEY_ZOOM_IN) && !state) {
+						m_world.zoom(ZOOM_SPEED);
+					} else if((scancode == KEY_ZOOM_OUT) && !state) {
+						m_world.zoom(-ZOOM_SPEED);
 					} else {
 
 						key = m_key.find(scancode);
