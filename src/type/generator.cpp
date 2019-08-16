@@ -101,8 +101,8 @@ namespace terra {
 					sample_y = (((pixel_y / (double)height) * 2.0) - 1.0);
 
 					sample = std::max(std::abs(sample_x), std::abs(sample_y));
-					sample = (std::pow(sample, (double)FALLOFF_CURVE) / (std::pow(sample, (double)FALLOFF_CURVE)
-							+ std::pow(FALLOFF_SCALE - (sample * FALLOFF_SCALE), (double)FALLOFF_CURVE)));
+					sample = (std::pow(sample, FALLOFF_CURVE) / (std::pow(sample, FALLOFF_CURVE)
+							+ std::pow(FALLOFF_SCALE - (sample * FALLOFF_SCALE), FALLOFF_CURVE)));
 
 					falloff.at((pixel_y * width) + pixel_x) = sample;
 				}
