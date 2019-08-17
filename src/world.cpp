@@ -52,21 +52,23 @@ namespace terra {
 	}
 
 	void
-	world::crosshair(void)
+	world::cursor(
+		__in uint32_t magnification
+		)
 	{
-		int32_t center_x, center_y, x, y = -CROSSHAIR_WIDTH;
+		int32_t center_x, center_y, x, y = 0;
 
-		TRACE_ENTRY();
+		TRACE_ENTRY_FORMAT("Magnification=%u", magnification);
 
-		center_x = (m_configuration->width / 2);
-		center_y = (m_configuration->height / 2);
+		center_x = ((m_configuration->width / 2) - (magnification / 2));
+		center_y = ((m_configuration->height / 2) - (magnification / 2));
 
-		for(; y <= CROSSHAIR_WIDTH; ++y) {
+		for(; y < magnification; ++y) {
 
-			for(x = -CROSSHAIR_WIDTH; x <= CROSSHAIR_WIDTH; ++x) {
+			for(x = 0; x < magnification; ++x) {
 
-				if(!x || !y) {
-					m_display.set_pixel(COLOR_CROSSHAIR, x + center_x, y + center_y);
+				if(!x || (x == (magnification - 1)) || !y || (y == (magnification - 1))) {
+					m_display.set_pixel(COLOR_CURSOR, x + center_x, y + center_y);
 				}
 			}
 		}
@@ -286,47 +288,56 @@ namespace terra {
 		__in uint32_t magnification
 		)
 	{
-		int32_t pixel_x, pixel_y;
+		int32_t tile_x, tile_y;
 
 		TRACE_ENTRY_FORMAT("Magnification=%u", magnification);
 
-		for(pixel_y = 0; pixel_y < m_configuration->height; ++pixel_y) {
+		for(tile_y = 0; tile_y < m_configuration->height; ++tile_y) {
 
-			for(pixel_x = 0; pixel_x < m_configuration->width; ++pixel_x) {
-				m_display.set_pixel(COLOR_BACKGROUND, pixel_x, pixel_y);
+			for(tile_x = 0; tile_x < m_configuration->width; ++tile_x) {
+				m_display.set_pixel(COLOR_BACKGROUND, tile_x, tile_y);
 			}
 		}
 
-		for(pixel_y = m_range.second.first; pixel_y < m_range.second.second; ++pixel_y) {
+		for(tile_y = m_range.second.first; tile_y < m_range.second.second; ++tile_y) {
 
-			for(pixel_x = m_range.first.first; pixel_x < m_range.first.second; ++pixel_x) {
+			for(tile_x = m_range.first.first; tile_x < m_range.first.second; ++tile_x) {
 				double height;
 				color_t color = {};
 				int32_t subpixel_x, subpixel_y = 0;
 
-				if((pixel_x < 0) || (pixel_x >= m_configuration->width)
-						|| (pixel_y < 0) || (pixel_y >= m_configuration->height)) {
+				if((tile_x < 0) || (tile_x >= m_configuration->width)
+						|| (tile_y < 0) || (tile_y >= m_configuration->height)) {
 					continue;
 				}
 
-				height = m_generator.at((pixel_y * m_configuration->width) + pixel_x);
+				height = m_generator.at((tile_y * m_configuration->width) + tile_x);
 
 				for(; subpixel_y < magnification; ++subpixel_y) {
 
 					for(subpixel_x = 0; subpixel_x < magnification; ++subpixel_x) {
+						int32_t pixel_x, pixel_y;
+
+						pixel_x = (((tile_x - m_range.first.first) * magnification) + subpixel_x - (magnification / 2));
+						pixel_y = (((tile_y - m_range.second.first) * magnification) + subpixel_y - (magnification / 2));
+
+						if((pixel_x < 0) || (pixel_x >= m_configuration->width)
+								|| (pixel_y < 0) || (pixel_y >= m_configuration->height)) {
+							continue;
+						}
+
 						texture(color, height, subpixel_x, subpixel_y);
 #ifndef DISABLE_OCCLUSION
-						occlude(color, height, pixel_x, pixel_y);
+						occlude(color, height, tile_x, tile_y);
 #endif // DISABLE_OCCLUSION
-						m_display.set_pixel(color, ((pixel_x - m_range.first.first) * magnification) + subpixel_x,
-							((pixel_y - m_range.second.first) * magnification) + subpixel_y);
+						m_display.set_pixel(color, pixel_x, pixel_y);
 					}
 				}
 			}
 		}
 
-#ifndef DISABLE_CROSSHAIR
-		crosshair();
+#ifndef DISABLE_CURSOR
+		cursor(magnification);
 #endif // DISABLE_CROSSHAIR
 
 		TRACE_EXIT();

@@ -73,6 +73,11 @@ Changelog
 Version 0.1.1933
 -
 
+*Updated: 8/17/2019*
+
+* Zoom into center of tiles
+* Change crosshair to cursor
+
 *Updated: 8/15/2019*
 
 * Added zoom key controls

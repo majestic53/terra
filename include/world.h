@@ -71,7 +71,9 @@ namespace terra {
 
 			const terra_t &configuration(void) override;
 
-			void crosshair(void);
+			void cursor(
+				__in uint32_t magnification
+				);
 
 			void occlude(
 				__inout color_t &color,

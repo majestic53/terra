@@ -21,12 +21,10 @@
 
 static const color_t COLOR_BACKGROUND = {{ 0, 0, 0, 255 }};
 
-static const color_t COLOR_CROSSHAIR = {{ 0, 0, 255, 255 }};
-
-#define CROSSHAIR_WIDTH 2
+static const color_t COLOR_CURSOR = {{ 0, 0, 255, 255 }};
 
 //#define DISABLE_COLOR
-#define DISABLE_CROSSHAIR
+//#define DISABLE_CURSOR
 //#define DISABLE_FALLOFF
 //#define DISABLE_OCCLUSION
 #define DISABLE_TEXTURE

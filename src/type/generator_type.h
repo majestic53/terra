@@ -53,8 +53,6 @@ namespace terra {
 
 		#define OCTAVE_OFFSET_MAX 100000
 		#define OCTAVE_OFFSET_MIN -OCTAVE_OFFSET_MAX
-
-		#define SCALE_MIN 0.0001
 	}
 }
 

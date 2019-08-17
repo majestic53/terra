@@ -64,9 +64,6 @@ namespace terra {
 			lacunarity = PERLIN_LACUNARITY;
 
 			scale = PERLIN_SCALE;
-			if(scale <= 0) {
-				scale = SCALE_MIN;
-			}
 
 			offsets.resize(octaves);
 			engine.seed(m_perlin.seed());
